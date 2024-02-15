@@ -1,0 +1,69 @@
+{
+  "labels": [
+    {
+      "id": 21,
+      "name": "productCode",
+      "description": ""
+    },
+    {
+      "id": 20,
+      "name": "lineNumber",
+      "description": "item number"
+    },
+    {
+      "id": 19,
+      "name": "unitPrice",
+      "description": "price of 1 item"
+    },
+    {
+      "id": 18,
+      "name": "salesOrderNumber",
+      "description": "serial number"
+    },
+    {
+      "id": 17,
+      "name": "poNumber",
+      "description": "po num"
+    },
+    {
+      "id": 1,
+      "name": "invoiceNumber",
+      "description": "Invoice Number"
+    },
+    {
+      "id": 2,
+      "name": "invoiceDate",
+      "description": "Invoice Date"
+    },
+    {
+      "id": 8,
+      "name": "productDesc",
+      "description": "Item Description"
+    },
+    {
+      "id": 9,
+      "name": "orderedQuantity",
+      "description": "ordered Quantity"
+    },
+    {
+      "id": 10,
+      "name": "shippedQuantity",
+      "description": "shipped quantity"
+    },
+    {
+      "id": 11,
+      "name": "backOrderedQuantity",
+      "description": "back ordered quantity"
+    },
+    {
+      "id": 12,
+      "name": "amount",
+      "description": "total amount"
+    },
+    {
+      "id": 13,
+      "name": "productName",
+      "description": "name of the product"
+    }
+  ]
+}

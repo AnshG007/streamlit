@@ -1,0 +1,129 @@
+{
+  "groups": [
+    {
+      "id": 25,
+      "name": "items_row23",
+      "description": ""
+    },
+    {
+      "id": 24,
+      "name": "items_row22",
+      "description": ""
+    },
+    {
+      "id": 23,
+      "name": "items_row21",
+      "description": ""
+    },
+    {
+      "id": 22,
+      "name": "items_row20",
+      "description": ""
+    },
+    {
+      "id": 21,
+      "name": "items_row19",
+      "description": ""
+    },
+    {
+      "id": 20,
+      "name": "items_row18",
+      "description": ""
+    },
+    {
+      "id": 19,
+      "name": "items_row17",
+      "description": ""
+    },
+    {
+      "id": 18,
+      "name": "items_row16",
+      "description": ""
+    },
+    {
+      "id": 17,
+      "name": "items_row15",
+      "description": ""
+    },
+    {
+      "id": 16,
+      "name": "items_row14",
+      "description": ""
+    },
+    {
+      "id": 15,
+      "name": "items_row13",
+      "description": ""
+    },
+    {
+      "id": 14,
+      "name": "items_row12",
+      "description": ""
+    },
+    {
+      "id": 13,
+      "name": "items_row11",
+      "description": ""
+    },
+    {
+      "id": 12,
+      "name": "header",
+      "description": "Header"
+    },
+    {
+      "id": 1,
+      "name": "items_row1",
+      "description": "Items in row 1"
+    },
+    {
+      "id": 2,
+      "name": "items_row2",
+      "description": "Items in row 2"
+    },
+    {
+      "id": 3,
+      "name": "items_row3",
+      "description": "Items in row 3"
+    },
+    {
+      "id": 4,
+      "name": "items_row4",
+      "description": "Items in row 4"
+    },
+    {
+      "id": 5,
+      "name": "items_row5",
+      "description": "Items in row 5"
+    },
+    {
+      "id": 6,
+      "name": "items_row6",
+      "description": "Items in row 6"
+    },
+    {
+      "id": 7,
+      "name": "items_row7",
+      "description": "Items in row 7"
+    },
+    {
+      "id": 8,
+      "name": "items_row8",
+      "description": "Items in row 8"
+    },
+    {
+      "id": 9,
+      "name": "items_row9",
+      "description": "Items in row 9"
+    },
+    {
+      "id": 10,
+      "name": "items_row10",
+      "description": "Items in row 10"
+    },
+    {
+      "id": 11,
+      "name": "summary",
+      "description": "Summary"
+    }
+  ]
+}

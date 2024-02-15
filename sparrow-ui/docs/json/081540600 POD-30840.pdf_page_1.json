@@ -1,0 +1,673 @@
+{
+  "meta": {
+    "version": "v0.1",
+    "split": "-",
+    "image_id": 0,
+    "image_size": {
+      "width": 2550,
+      "height": 3300
+    }
+  },
+  "words": [
+    {
+      "rect": {
+        "x1": 971,
+        "y1": 167,
+        "x2": 1138,
+        "y2": 242
+      },
+      "value": "LIC",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 171,
+        "y1": 167,
+        "x2": 429,
+        "y2": 254
+      },
+      "value": "STAR",
+      "label": "productName"
+    },
+    {
+      "rect": {
+        "x1": 446,
+        "y1": 171,
+        "x2": 921,
+        "y2": 242
+      },
+      "value": "ELECTRIC",
+      "label": "lineNumber"
+    },
+    {
+      "rect": {
+        "x1": 175,
+        "y1": 267,
+        "x2": 512,
+        "y2": 325
+      },
+      "value": "3929 23th Street",
+      "label": "amount"
+    },
+    {
+      "rect": {
+        "x1": 2183,
+        "y1": 283,
+        "x2": 2338,
+        "y2": 333
+      },
+      "value": "S.O.No.",
+      "label": "salesOrderNumber"
+    },
+    {
+      "rect": {
+        "x1": 1929,
+        "y1": 288,
+        "x2": 2029,
+        "y2": 342
+      },
+      "value": "Date",
+      "label": "invoiceDate"
+    },
+    {
+      "rect": {
+        "x1": 175,
+        "y1": 325,
+        "x2": 708,
+        "y2": 383
+      },
+      "value": "Long Islan City, NY 11101",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 179,
+        "y1": 379,
+        "x2": 542,
+        "y2": 429
+      },
+      "value": "PH: 718-280-5989",
+      "label": "unitPrice"
+    },
+    {
+      "rect": {
+        "x1": 2200,
+        "y1": 379,
+        "x2": 2312,
+        "y2": 429
+      },
+      "value": "59708",
+      "label": "salesOrderNumber"
+    },
+    {
+      "rect": {
+        "x1": 1900,
+        "y1": 388,
+        "x2": 2058,
+        "y2": 429
+      },
+      "value": "12/7/2021",
+      "label": "invoiceDate"
+    },
+    {
+      "rect": {
+        "x1": 188,
+        "y1": 433,
+        "x2": 958,
+        "y2": 483
+      },
+      "value": "ORDERQSTARELECTRICLICCOM",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1425,
+        "y1": 558,
+        "x2": 1571,
+        "y2": 617
+      },
+      "value": "Ship To",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 321,
+        "y1": 571,
+        "x2": 600,
+        "y2": 621
+      },
+      "value": "Name Address",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1379,
+        "y1": 633,
+        "x2": 1896,
+        "y2": 688
+      },
+      "value": "93-33 GUY RI BREWER BLVD",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 275,
+        "y1": 646,
+        "x2": 742,
+        "y2": 700
+      },
+      "value": "HORSEPOWER: ELECTRIC",
+      "label": "amount"
+    },
+    {
+      "rect": {
+        "x1": 1383,
+        "y1": 683,
+        "x2": 1638,
+        "y2": 733
+      },
+      "value": "JAMAICA,NY",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 275,
+        "y1": 696,
+        "x2": 533,
+        "y2": 750
+      },
+      "value": "4101 ISTAVE",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1383,
+        "y1": 729,
+        "x2": 1812,
+        "y2": 775
+      },
+      "value": "GERSHON:7I8-9380344",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 275,
+        "y1": 742,
+        "x2": 733,
+        "y2": 788
+      },
+      "value": "BROOKIYN.NYUSII22",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1383,
+        "y1": 767,
+        "x2": 1888,
+        "y2": 821
+      },
+      "value": "DELIVERY DATE: 12/17/2021",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1462,
+        "y1": 921,
+        "x2": 1775,
+        "y2": 1012
+      },
+      "value": "(FRTOAY)",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1804,
+        "y1": 1121,
+        "x2": 1908,
+        "y2": 1175
+      },
+      "value": "FOB",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 2175,
+        "y1": 1121,
+        "x2": 2308,
+        "y2": 1171
+      },
+      "value": "Project",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1429,
+        "y1": 1121,
+        "x2": 1592,
+        "y2": 1179
+      },
+      "value": "Ship Via",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1125,
+        "x2": 1321,
+        "y2": 1183
+      },
+      "value": "Ship Date",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 921,
+        "y1": 1129,
+        "x2": 1008,
+        "y2": 1183
+      },
+      "value": "Rep",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 258,
+        "y1": 1138,
+        "x2": 417,
+        "y2": 1183
+      },
+      "value": "P.O.No.",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 612,
+        "y1": 1138,
+        "x2": 733,
+        "y2": 1179
+      },
+      "value": "Terms",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1150,
+        "y1": 1225,
+        "x2": 1308,
+        "y2": 1267
+      },
+      "value": "12/7/2021",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 229,
+        "y1": 1238,
+        "x2": 446,
+        "y2": 1275
+      },
+      "value": "21128-0061.3",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 1675,
+        "y1": 1312,
+        "x2": 1879,
+        "y2": 1362
+      },
+      "value": "Description",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 846,
+        "y1": 1317,
+        "x2": 942,
+        "y2": 1371
+      },
+      "value": "Item",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 333,
+        "y1": 1325,
+        "x2": 483,
+        "y2": 1367
+      },
+      "value": "Ordered",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1388,
+        "x2": 1642,
+        "y2": 1438
+      },
+      "value": "4\" SET SCREW CPLG. STEEL",
+      "label": "unitPrice"
+    },
+    {
+      "rect": {
+        "x1": 592,
+        "y1": 1400,
+        "x2": 775,
+        "y2": 1446
+      },
+      "value": "45 BP249",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1433,
+        "x2": 1242,
+        "y2": 1488
+      },
+      "value": "EMT",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1250,
+        "y1": 1433,
+        "x2": 1446,
+        "y2": 1483
+      },
+      "value": "4'LENGTH",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 567,
+        "y1": 1442,
+        "x2": 808,
+        "y2": 1496
+      },
+      "value": "420 EMT400",
+      "label": "productName"
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1479,
+        "x2": 1242,
+        "y2": 1533
+      },
+      "value": "EMT",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1250,
+        "y1": 1483,
+        "x2": 1446,
+        "y2": 1525
+      },
+      "value": "3'LENGTH",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 592,
+        "y1": 1488,
+        "x2": 808,
+        "y2": 1533
+      },
+      "value": "60 EMT300",
+      "label": "productName"
+    },
+    {
+      "rect": {
+        "x1": 1138,
+        "y1": 1521,
+        "x2": 1642,
+        "y2": 1575
+      },
+      "value": "3\" SET SCREW CPLG.STEEL:",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 608,
+        "y1": 1529,
+        "x2": 779,
+        "y2": 1583
+      },
+      "value": "6 BP247",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1567,
+        "x2": 1696,
+        "y2": 1621
+      },
+      "value": "21/2\" SET SCREW CPLG. STEEL",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 612,
+        "y1": 1575,
+        "x2": 779,
+        "y2": 1621
+      },
+      "value": "8 BP246",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1612,
+        "x2": 1504,
+        "y2": 1658
+      },
+      "value": "EMT 21/2LENGTH",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 596,
+        "y1": 1621,
+        "x2": 812,
+        "y2": 1671
+      },
+      "value": "60 EMT250",
+      "label": "productName"
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1654,
+        "x2": 1242,
+        "y2": 1708
+      },
+      "value": "EMT",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1250,
+        "y1": 1658,
+        "x2": 1446,
+        "y2": 1700
+      },
+      "value": "2'LENGTH",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 596,
+        "y1": 1662,
+        "x2": 808,
+        "y2": 1708
+      },
+      "value": "80 EMT200",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 596,
+        "y1": 1704,
+        "x2": 800,
+        "y2": 1754
+      },
+      "value": "50 C1054",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1138,
+        "y1": 1704,
+        "x2": 1571,
+        "y2": 1746
+      },
+      "value": "KDC C1054 STEELSTRAP",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1742,
+        "x2": 1708,
+        "y2": 1796
+      },
+      "value": "15/8 SILVER SLOTTED CHANEL",
+      "label": "productDesc"
+    },
+    {
+      "rect": {
+        "x1": 596,
+        "y1": 1746,
+        "x2": 925,
+        "y2": 1796
+      },
+      "value": "40 A1200HS 10PG",
+      "label": "productName"
+    },
+    {
+      "rect": {
+        "x1": 1133,
+        "y1": 1783,
+        "x2": 1308,
+        "y2": 1833
+      },
+      "value": "Sales Tax",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 525,
+        "y1": 2642,
+        "x2": 683,
+        "y2": 2738
+      },
+      "value": "EMT",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 850,
+        "y1": 2667,
+        "x2": 1142,
+        "y2": 2762
+      },
+      "value": "2-bunles",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 567,
+        "y1": 2729,
+        "x2": 792,
+        "y2": 2842
+      },
+      "value": "BDKES",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1779,
+        "y1": 2829,
+        "x2": 2225,
+        "y2": 3004
+      },
+      "value": "Ldkn",
+      "label": "invoiceDate"
+    },
+    {
+      "rect": {
+        "x1": 1504,
+        "y1": 2838,
+        "x2": 1679,
+        "y2": 2896
+      },
+      "value": "Signature",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 2225,
+        "y1": 2842,
+        "x2": 2483,
+        "y2": 2958
+      },
+      "value": "wy",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1950,
+        "y1": 2958,
+        "x2": 2229,
+        "y2": 3067
+      },
+      "value": "G4550",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 217,
+        "y1": 2971,
+        "x2": 1279,
+        "y2": 3038
+      },
+      "value": "Ifyou like to send your order by email please use",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 1408,
+        "y1": 3000,
+        "x2": 1658,
+        "y2": 3050
+      },
+      "value": "PRINT NAME:",
+      "label": ""
+    },
+    {
+      "rect": {
+        "x1": 225,
+        "y1": 3029,
+        "x2": 1075,
+        "y2": 3092
+      },
+      "value": "ORDER@STARELECTRICLIC.COM",
+      "label": "shippedQuantity"
+    },
+    {
+      "rect": {
+        "x1": 225,
+        "y1": 3146,
+        "x2": 1500,
+        "y2": 3208
+      },
+      "value": "Please make check payable to STARI ELECTRIC SUPPLY",
+      "label": "backOrderedQuantity"
+    }
+  ]
+}
