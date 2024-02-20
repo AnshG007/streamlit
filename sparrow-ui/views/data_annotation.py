@@ -12,6 +12,8 @@ from tools import agstyler
 from tools.agstyler import PINLEFT
 import pandas as pd
 from toolbar_main import component_toolbar_main
+from st_aggrid import AgGrid
+import matplotlib.pyplot as plt
 
 
 class DataAnnotation:
@@ -67,6 +69,7 @@ class DataAnnotation:
 
         error_text = "Value is too long. Please shorten it."
         selection_must_be_continuous = "Please select continuous rows"
+        flag = True
 
     def view(self, model, ui_width, device_type, device_width):
         with open(model.labels_file, "r") as f:
@@ -194,7 +197,7 @@ class DataAnnotation:
                 with col1:
                     result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor)
                 with col2:
-                    tab = st.radio("Select", ["Mapping", "Grouping", "Ordering"], horizontal=True,
+                    tab = st.radio("Select", ["Mapping", "Grouping", "Ordering", "labelTrial"], horizontal=True,
                                    label_visibility="collapsed")
                     if tab == "Mapping":
                         self.render_form(model, result_rects, data_processor, annotation_selection)
@@ -202,6 +205,8 @@ class DataAnnotation:
                         self.group_annotations(model, result_rects)
                     elif tab == "Ordering":
                         self.order_annotations(model, model.labels, model.groups, result_rects)
+                    elif tab == "labelTrial":
+                        self.labelTrial(model , result_rects,data_processor)
             else:
                 result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width)
                 tab = st.radio("Select", ["Mapping", "Grouping"], horizontal=True, label_visibility="collapsed")
@@ -212,9 +217,9 @@ class DataAnnotation:
 
     def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor):
         col1, col2 = st.columns(2)
-        if "visibility" not in st.session_state:
-            st.session_state.visibility = "visible"
-            st.session_state.disabled = False
+        # if "visibility" not in st.session_state:
+        #     st.session_state.visibility = "visible"
+        #     st.session_state.disabled = False
         with st.container():
             # Retrieve words and meta from saved_state
             words = saved_state.get('words', [])
@@ -256,25 +261,30 @@ class DataAnnotation:
             )
             st.caption(model.text_caption_1)
             st.caption(model.text_caption_2)
-            data = result_rects.rects_data
+            # data = {}
+            #data = result_rects.rects_data
             #print(data)
             #print(result_rects.rects_data)
             
             #print(data)
+            '''    
             for i, rect in enumerate(words):
                 if i == result_rects.current_rect_index:
-                    t = rect['value']
-                    print("Selected Box Value:", t)  # Display the value of the selected box
-                    with col1:
-                        selected_label = st.selectbox('Labels', model.labels, label_visibility=st.session_state.visibility,
-                        disabled=st.session_state.disabled)  # Display selectbox with labels
-                    print("Selected Label:", selected_label)  # Display selected label
-                    rect['label'] = selected_label
-                    data.get('words')[i] = rect
+                        with col1:
+                            selected_label = st.selectbox('Labels', model.labels , index=0)
+                        t = rect['value']
+                        label = rect['label']
+                        #print("Selected Box Value:", t)  # Display the value of the selected box
+                        rect['label'] = selected_label
+                        data_processor.update_rect_data(result_rects.rects_data, i, rect['value'], rect['label'])
+                        
+                       
+                
+                      
                     
-                   
                     with col2:
-                        save_button = st.button("saveLabel", type='primary')
+                        #save_button = st.button("saveLabel", type='primary')
+                        
                         if save_button:
                             with open(model.rects_file, "w") as f:
                                 json.dump(data, f, indent=2)
@@ -282,7 +292,10 @@ class DataAnnotation:
                                 st.session_state[model.rects_file] = data
                                 # Refresh the page
                                 st.experimental_rerun()
-                            
+                ''' 
+            
+                    
+                        
            # print(data)
             return result_rects  # Return after processing all words
 
@@ -329,7 +342,7 @@ class DataAnnotation:
                 with st.form(key="fields_form"):
                     
                     toolbar = st.empty()
-
+                    
                     self.render_form_view(result_rects.rects_data['words'], model.labels, result_rects,
                                         data_processor)
 
@@ -404,6 +417,7 @@ class DataAnnotation:
             css=css,
             key=f"ag-grid-{i}" 
         )
+        rows = response['selected_rows']
         #value = response['value'].values.tolist()
         data = response['data'].values.tolist()
         #print(data[1])
@@ -584,13 +598,106 @@ class DataAnnotation:
                         st.session_state[model.rects_file] = result_rects.rects_data
                         st.experimental_rerun()
 
+    def labelTrial(self , model , result_rects,data_processor):
+       
+        with st.form(key='labelTrial'):
+            data =[]
+            #print(result_rects.rects_data)
+            #trying_list  = json.load(open(model.rects_file))
+            if result_rects is not None:
+                words = result_rects.rects_data['words']
+                for i,rect in enumerate(words):
+                    if i == result_rects.current_rect_index:
+                        #print(result_rects.current_rect_index)
+                        value = rect['value'] 
+                        group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+                        data.append({'value': value, 'label': label})
+                        #data_processor.update_rect_data(result_rects.rects_data, i, value, label)
 
+
+            #print(data)          
+            df = pd.DataFrame(data)
+            
+            #print(df)
+            formatter = {
+                'id': ('ID', {**PINLEFT, 'width': 50 , 'hide':True}),
+                'value': ('Value', PINLEFT),
+                'label': ('Label', {**PINLEFT,
+                                'width': 80,
+                                'editable': True,
+                                'cellEditor': 'agSelectCellEditor',
+                                'cellEditorParams': {
+                                    'values': model.labels
+                                }})
+            }
+            go = {
+                'rowClassRules': {
+                    'row-selected': 'data.id === ' + str(result_rects.current_rect_index)
+                }
+            }
+            response = agstyler.draw_grid(
+                df,
+                formatter=formatter,
+                fit_columns=True,
+                selection='multiple',
+                
+                pagination_size=40,
+                grid_options=go
+                 
+            )
+
+            #rows = response['selected_rows']
+            
+            
+            data = response['data'].values.tolist()
+            #print(data[0][1])
+            for i, rect in enumerate(words):
+                
+                if i == result_rects.current_rect_index:
+                    rect['label'] = data[0][1]
+                    
+                    #print(rect['label'])
+                    p = data_processor.update_rect_data(result_rects.rects_data, i, rect['value'], rect['label'])
+            
+            
+            #print(p)
+            submit = st.form_submit_button(model.save_text, type="primary")
+            if submit :     
+                with open(model.rects_file, "w") as f:
+                    #print(result_rects.rects_data)
+                    json.dump(result_rects.rects_data, f, indent=2)
+                    
+                    st.session_state[model.rects_file] = result_rects.rects_data
+                    st.experimental_rerun()
+            
+        l = []
+        v = []
+
+        col1, col2 = st.columns(2)
+        with col1:
+            btn = st.button("multiple", type='primary')
+            if btn:
+                l = []
+                v = []
+            else:
+                for i, rect in enumerate(words):
+                    if i == result_rects.current_rect_index:
+                        l.append(i)
+                        v.append(rect['value'])
+                    
+                    
+                
+        print(l)
+        print(v)
+            
+            
     def order_annotations(self, model, labels, groups, result_rects):
         if result_rects is not None:
             self.action_event = None
             data = []
             idx_list = [""]
-            words = result_rects.rects_data['words']
+            updated = json.load(open(model.rects_file))
+            words = updated['words']
             for i, rect in enumerate(words):
                 if rect['label'] != "":
                     # split string into two variables, assign None to first variable if no split is found
