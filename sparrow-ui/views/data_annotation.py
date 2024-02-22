@@ -22,8 +22,10 @@ class DataAnnotation:
 
         img_file = None
         rects_file = None
+        key_file = None
         labels_file = "docs/labels.json"
         groups_file = "docs/groups.json"
+        
 
         assign_labels_text = "Assign Labels"
         text_caption_1 = "Check 'Assign Labels' to enable editing of labels and values, move and resize the boxes to annotate the document."
@@ -117,6 +119,7 @@ class DataAnnotation:
             file_extension = self.get_file_extension(annotation_selection, 'docs/images/')
             model.img_file = f"docs/images/{annotation_selection}" + file_extension
             model.rects_file = f"docs/json/{annotation_selection}.json"
+            model.key_file = f"docs/json/key/{annotation_selection}.json"
 
             completed_check = st.empty()
 
@@ -200,7 +203,7 @@ class DataAnnotation:
                 with col1:
                     result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor)
                 with col2:
-                    tab = st.radio("Select", ["Mapping", "Grouping", "Ordering", "labelTrial"], horizontal=True,
+                    tab = st.radio("Select", ["Mapping", "Grouping", "Ordering", "labelTrial", "Observation"], horizontal=True,
                                    label_visibility="collapsed")
                     if tab == "Mapping":
                         self.render_form(model, result_rects, data_processor, annotation_selection)
@@ -210,6 +213,8 @@ class DataAnnotation:
                         self.order_annotations(model, model.labels, model.groups, result_rects)
                     elif tab == "labelTrial":
                         self.labelTrial(model , result_rects,data_processor)
+                    elif tab == "Observation":
+                        self.observations(model)
             else:
                 result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width)
                 tab = st.radio("Select", ["Mapping", "Grouping"], horizontal=True, label_visibility="collapsed")
@@ -217,6 +222,7 @@ class DataAnnotation:
                     self.render_form(model, result_rects, data_processor, annotation_selection)
                 else:
                     self.group_annotations(model, result_rects)
+                
 
     def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor):
         col1, col2 = st.columns(2)
@@ -264,42 +270,7 @@ class DataAnnotation:
             )
             st.caption(model.text_caption_1)
             st.caption(model.text_caption_2)
-            # data = {}
-            #data = result_rects.rects_data
-            #print(data)
-            #print(result_rects.rects_data)
-            
-            #print(data)
-            '''    
-            for i, rect in enumerate(words):
-                if i == result_rects.current_rect_index:
-                        with col1:
-                            selected_label = st.selectbox('Labels', model.labels , index=0)
-                        t = rect['value']
-                        label = rect['label']
-                        #print("Selected Box Value:", t)  # Display the value of the selected box
-                        rect['label'] = selected_label
-                        data_processor.update_rect_data(result_rects.rects_data, i, rect['value'], rect['label'])
-                        
-                       
-                
-                      
-                    
-                    with col2:
-                        #save_button = st.button("saveLabel", type='primary')
-                        
-                        if save_button:
-                            with open(model.rects_file, "w") as f:
-                                json.dump(data, f, indent=2)
-                            # Update the Streamlit app's state with the modified data
-                                st.session_state[model.rects_file] = data
-                                # Refresh the page
-                                st.experimental_rerun()
-                ''' 
-            
-                    
-                        
-           # print(data)
+        
             return result_rects  # Return after processing all words
 
 
@@ -333,13 +304,17 @@ class DataAnnotation:
         with st.container():
             run_subprocess_button = st.button("Run Subprocess")
             if run_subprocess_button:
-
+                print("HELLO")
                 subprocess.run(["python", "../sparrow-data/try.py", model.rects_file])
                 updated_data = json.load(open(model.rects_file))
+                print("world")
+                # with open(model.rects_file, "w") as f:
+                #     json.dump(result_rects.rects_data, f, indent=2)
                 
                 # Update the Streamlit app's state with the modified data
                 st.session_state[model.rects_file] = updated_data
                 st.experimental_rerun()
+            
             if result_rects is not None:
                 
                 with st.form(key="fields_form"):
@@ -602,6 +577,7 @@ class DataAnnotation:
                         st.experimental_rerun()
 
     def labelTrial(self , model , result_rects,data_processor):
+
         #print(model.v)
         '''
         with st.form(key='labelTrial'):
@@ -823,7 +799,23 @@ class DataAnnotation:
             #         st.experimental_rerun()
         
 
-               
+    def observations(self , model):
+        array = []
+        with st.form(key = "observe"):
+            file_path = model.key_file
+            with open(file_path , 'r') as file:
+                data = json.load(file)
+            st.write("Headers")
+            headers_data = data['header']
+            st.write(pd.DataFrame(headers_data , [1]))
+            st.write("Items")
+            data_items = data['items']
+            st.write(pd.DataFrame(data_items))
+            form_btn = st.form_submit_button("save" , disabled=True)
+
+            
+            
+
            
                 
                 
