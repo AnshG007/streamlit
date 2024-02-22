@@ -69,7 +69,10 @@ class DataAnnotation:
 
         error_text = "Value is too long. Please shorten it."
         selection_must_be_continuous = "Please select continuous rows"
-        flag = True
+        l = []
+        v = []
+        copy = None
+        
 
     def view(self, model, ui_width, device_type, device_width):
         with open(model.labels_file, "r") as f:
@@ -599,7 +602,8 @@ class DataAnnotation:
                         st.experimental_rerun()
 
     def labelTrial(self , model , result_rects,data_processor):
-       
+        #print(model.v)
+        '''
         with st.form(key='labelTrial'):
             data =[]
             #print(result_rects.rects_data)
@@ -670,34 +674,171 @@ class DataAnnotation:
                     st.session_state[model.rects_file] = result_rects.rects_data
                     st.experimental_rerun()
             
-        l = []
-        v = []
-
-        col1, col2 = st.columns(2)
+       
+        '''
+        #Multiple selection
+        
+        words = result_rects.rects_data['words']
+        col1 , col2 = st.columns(2)
         with col1:
-            btn = st.button("multiple", type='primary')
-            if btn:
-                l = []
-                v = []
-            else:
-                for i, rect in enumerate(words):
-                    if i == result_rects.current_rect_index:
-                        l.append(i)
-                        v.append(rect['value'])
+            btn = st.button('Refresh', type="primary")
+        with col2:
+            del_button = st.button("delete",type="primary")
+        
+        print("**************************************************************************************")
+        print(result_rects.current_rect_index)
+        print(model.copy)
+        print("**************************************************************************************")
+        if not btn and not del_button:
+            for i, rect in enumerate(words):
+                if i == result_rects.current_rect_index:
                     
+                    if i != model.copy:
+                        model.l.append(i)
+                        model.v.append(rect['value'])
                     
+                        
+        elif btn and not del_button:
+            model.v.clear()
+            model.l.clear()
+            st.experimental_rerun()
+            
+            
+        #print(model.l)
+        with st.form(key='multipleLabelTrial'):   
+            multiple_data = []
+            custom_rect_list = []
+            
+            for index , rect in enumerate(words):
+                for i , v in enumerate(model.l):
+                    if index == v :
+                        if rect['rect'] not in custom_rect_list:
+                            value = rect['value'] 
+                            group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+                            multiple_data.append({ 'value': value, 'label': label})
+                            custom_rect_list.append(rect['rect'])
+                            
+                            
+            dataFrame = pd.DataFrame(multiple_data)
+            #edited_df = st.data_editor(dataFrame, num_rows="dynamic")
+            #print(multiple_data)
+            formatter = {
+            'id': ('ID', {**PINLEFT, 'width': 50 }),
+            'value': ('Value', PINLEFT),
+            'label': ('Label', {**PINLEFT,
+                            'width': 80,
+                            'editable': True,
+                            'cellEditor': 'agSelectCellEditor',
+                            'cellEditorParams': {
+                                'values': model.labels
+                            }})
+            }
+            
+            go = {
+                'rowClassRules': {
+                    'row-selected': 'data.id === ' + str(result_rects.current_rect_index)
+                }
+            }
+            response = agstyler.draw_grid(
+                dataFrame,
+                formatter=formatter,
+                fit_columns=True,
+                selection='multiple',
                 
-        print(l)
-        print(v)
+                pagination_size=40,
+                grid_options=go
+                
+            )
+            updated_data = response['data'].values
+            #print(updated_data)
+            for index, v in enumerate(model.l):
+                if v < len(words):
+                        rect = words[v]  # Get the rectangle corresponding to the index in model.l
+                        label_index = custom_rect_list.index(rect['rect'])  # Find the index of v in model.l
+                        label = updated_data[label_index][1]  # Get the corresponding label from updated_data
+                        rect['label'] = label  # Update the label of the rectangle
+                        #print(rect['label'])
+                        p = data_processor.update_rect_data(result_rects.rects_data, v, rect['value'], rect['label'])
+            submit_btn = st.form_submit_button(model.save_text, type="primary")
+            if submit_btn :     
+                with open(model.rects_file, "w") as f:
+                    #print(result_rects.rects_data)
+                    json.dump(result_rects.rects_data, f, indent=2)
+                    st.session_state[model.rects_file] = result_rects.rects_data
+                    st.experimental_rerun()
+            #removal
+        del_data = result_rects.rects_data
+        print(f"model.v before the deletion button: {model.v}")
+        #print(del_data)
+        #print(model.l)
+        #print(model.v)
+        if del_button:
+            #print(f"before : {len(del_data['words'])}")
+            del_words = del_data['words']
+            #print(del_words)
+            for i, rect in enumerate(del_words):
+                if i == result_rects.current_rect_index :
+                    
+                    if i in model.l:
+                        
+                        value = rect['value']
+                        index = i
+                        model.copy = i
+                        for item in model.v:
+                            if value in model.v:
+                                model.v.remove(value)
+                        del_words.pop(index)
+                        model.l.remove(i)
+                        result_rects.current_rect_index = None
+                        
+                        print("#####################################################################")
+                        print(i)
+                        print(model.l) 
+                        print(model.v) 
+                        print(result_rects.current_rect_index)          
+                        print("#####################################################################")
+            print(f"model.v after the deletion: {model.v}")             
+            del_data['words'] = del_words
+            #print(f"after : {len(del_data['words'])}")
+            #result_rects.rects_data['words'] = del_data['words']
+            with open(model.rects_file, 'w') as f:
+                json.dump(del_data, f, indent=2)
+                st.session_state[model.rects_file] = del_data
+                st.experimental_rerun()
+
+                
+            # for i, rect in enumerate(words):
+            #     value = del_data[i][1]
+            #     label = del_data[i][2]
+
+            #     if i == result_rects.current_rect_index:
+            #         data_processor.update_rect_data(result_rects.rects_data, i, value, label)
+
             
-            
+            # if del_button:
+            #     with open(model.rects_file, "w") as f:
+            #         #print(result_rects.rects_data)
+            #         json.dump(result_rects.rects_data, f, indent=2)
+            #         st.session_state[model.rects_file] = result_rects.rects_data
+            #         st.experimental_rerun()
+        
+
+               
+           
+                
+                
+                        
+                        
+
+
+
     def order_annotations(self, model, labels, groups, result_rects):
         if result_rects is not None:
             self.action_event = None
             data = []
             idx_list = [""]
-            updated = json.load(open(model.rects_file))
-            words = updated['words']
+            #updated = json.load(open(model.rects_file))
+            words = result_rects.rects_data['words']
             for i, rect in enumerate(words):
                 if rect['label'] != "":
                     # split string into two variables, assign None to first variable if no split is found
