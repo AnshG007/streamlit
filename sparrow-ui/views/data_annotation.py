@@ -12,8 +12,9 @@ from tools import agstyler
 from tools.agstyler import PINLEFT
 import pandas as pd
 from toolbar_main import component_toolbar_main
-from st_aggrid import AgGrid
+from st_aggrid import AgGrid, GridOptionsBuilder
 import matplotlib.pyplot as plt
+from pandasgui import show
 
 
 class DataAnnotation:
@@ -214,7 +215,7 @@ class DataAnnotation:
                     elif tab == "labelTrial":
                         self.labelTrial(model , result_rects,data_processor)
                     elif tab == "Observation":
-                        self.observations(model)
+                        self.observations(model ,result_rects)
             else:
                 result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width)
                 tab = st.radio("Select", ["Mapping", "Grouping"], horizontal=True, label_visibility="collapsed")
@@ -799,20 +800,123 @@ class DataAnnotation:
             #         st.experimental_rerun()
         
 
-    def observations(self , model):
-        array = []
-        with st.form(key = "observe"):
-            file_path = model.key_file
-            with open(file_path , 'r') as file:
-                data = json.load(file)
-            st.write("Headers")
-            headers_data = data['header']
-            st.write(pd.DataFrame(headers_data , [1]))
-            st.write("Items")
-            data_items = data['items']
-            st.write(pd.DataFrame(data_items))
-            form_btn = st.form_submit_button("save" , disabled=True)
+    def observations(self , model,result_rects):
+        sorted_list = []
+        #with st.form(key = "observe"):
+        '''
+        file_path = model.key_file
+        with open(file_path , 'r') as file:
+            data = json.load(file)
+        st.write("Headers")
+        headers_data = data['header']
+        st.write(pd.DataFrame(headers_data , [1]))
+        st.write("Items")
+        data_items = data['items']
+        st.write(pd.DataFrame(data_items))
+        form_btn = st.form_submit_button("save" , disabled=True)
+        '''
+        
+        sorted_list = ['lineNumber', 'productCode', 'productName', 'productDesc', 'orderedQuantity', 'backOrderedQuantity', 'shippedQuantity', 'unitPrice', 'amount']
+        sorted_list_header=['invoiceDate','invoiceNumber','salesOrderNumber','poNumber']
+        words = result_rects.rects_data['words']
+        seen_combinations = set()
+        seen_labels = set()
+        # Create an empty dictionary to hold data for each column
+        table_data = {col: [] for col in sorted_list}
+        header_data = {col: [None] for col in sorted_list_header}
+        max_l = 0
+        for rect in words:
+            group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+            print(group)
+            extract_int = None
+            
+            if group is not None and group[-1].isdigit():  # Check if the last character is a digit
+                extract_int = int(group[-1])
+                #extract_int = extract_int - 1
 
+            if label != "":
+                if (label, extract_int) not in seen_combinations:
+                    seen_combinations.add((label, extract_int))
+                    for col in sorted_list:
+                        if label == col:
+                            # Append the value to the corresponding column in the table_data dictionary based on the row number
+                            if extract_int is not None:
+                                max_length = max(len(table_data[col]), extract_int)
+                                table_data[col] += [None] * (max_length - len(table_data[col]))  # Fill in None for preceding rows
+                                table_data[col][extract_int - 1] = rect['value'] 
+                    
+                    if label not in seen_labels:
+                        seen_labels.add(label)
+                        
+                        # Update header_data dictionary for header group
+                        for col_head in sorted_list_header:
+                            if label == col_head:
+                                header_data[col_head][0] = rect['value']
+                            
+
+        # Convert header_data to DataFrame
+        head_df = pd.DataFrame(header_data)
+        print(head_df)
+        # Remove columns with all NaN values
+        head_df_filtered = head_df.dropna(axis=1, how='all')
+
+        # Display the filtered DataFrame
+        st.write(head_df_filtered)
+                    
+                
+
+        # Fill missing values with None if any column lengths are different
+        max_length = max(len(values) for values in table_data.values())
+        for col in table_data:
+            table_data[col] += [None] * (max_length - len(table_data[col]))
+
+        # Convert the dictionary to a DataFrame
+        df = pd.DataFrame(table_data)
+        df_filtered = df.dropna(axis=1, how='all')
+        # grid = AgGrid(
+        #     df.head(50),
+        #     gridOptions=GridOptionsBuilder.from_dataframe(df_filtered).build(),
+        # )
+        st.write(df_filtered)
+        
+        # User input for rows to swap
+        rect1 = []
+        rect2=[]
+        swap_row1 = st.number_input("Enter row 1 to swap (1-indexed):", min_value=1, max_value=len(df), value=1)
+        swap_row2 = st.number_input("Enter row 2 to swap (1-indexed):", min_value=1, max_value=len(df), value=1)
+        for i , rect in enumerate(words):
+            #print(rect)
+            grouping, labelling = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+        
+            if grouping is not None and grouping == f"items_row{swap_row1}":
+                #print("hello")
+                #print(grouping)
+                
+                rect1.append(rect)
+                
+            if grouping is not None and grouping == f"items_row{swap_row1}":
+                rect2.append(rect)
+        print("********&&&&&&&&&&&&")
+        print(rect1)
+        print("********&&&&&&&&&&&&$$$$$$$$$$$$$$")
+        print(rect2)   
+
+
+
+        # Swap rows based on user input
+        if st.button("Swap Rows"):
+            if 1 <= swap_row1 <= len(df) and 1 <= swap_row2 <= len(df):
+                df_copy = df_filtered.copy()
+                df_copy.iloc[swap_row1 - 1], df_copy.iloc[swap_row2 - 1] = df_copy.iloc[swap_row2 - 1].copy(), df_copy.iloc[swap_row1 - 1].copy()
+                df_filtered.iloc[swap_row1 - 1], df_filtered.iloc[swap_row2 - 1] = df_copy.iloc[swap_row1 - 1], df_copy.iloc[swap_row2 - 1]
+                st.write(df_filtered)  # Display the swapped DataFrame
+                st.success("Rows swapped successfully!")
+
+            else:
+                st.error("Invalid row numbers! Please enter valid row numbers.")
+            
+            
+            
             
             
 
