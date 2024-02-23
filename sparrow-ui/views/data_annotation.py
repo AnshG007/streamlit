@@ -14,7 +14,7 @@ import pandas as pd
 from toolbar_main import component_toolbar_main
 from st_aggrid import AgGrid, GridOptionsBuilder
 import matplotlib.pyplot as plt
-from pandasgui import show
+
 
 
 class DataAnnotation:
@@ -827,13 +827,18 @@ class DataAnnotation:
         max_l = 0
         for rect in words:
             group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
-            print(group)
+            print(label)
             extract_int = None
             
             if group is not None and group[-1].isdigit():  # Check if the last character is a digit
-                extract_int = int(group[-1])
+                if len(group) >= 2 and group[-2].isdigit():  # Check if the second to last character is also a digit
+                    extract_int = int(group[-2:])  # Extract the last two characters as an integer
+                    #print(extract_int)
+                else:
+                    extract_int = int(group[-1])
                 #extract_int = extract_int - 1
-
+                
+                
             if label != "":
                 if (label, extract_int) not in seen_combinations:
                     seen_combinations.add((label, extract_int))
@@ -845,13 +850,20 @@ class DataAnnotation:
                                 table_data[col] += [None] * (max_length - len(table_data[col]))  # Fill in None for preceding rows
                                 table_data[col][extract_int - 1] = rect['value'] 
                     
+                
                     if label not in seen_labels:
                         seen_labels.add(label)
-                        
-                        # Update header_data dictionary for header group
                         for col_head in sorted_list_header:
+                            print(label)
                             if label == col_head:
                                 header_data[col_head][0] = rect['value']
+                                print(rect['value'])
+                            
+                            
+                        
+
+                              
+                    
                             
 
         # Convert header_data to DataFrame
@@ -862,6 +874,7 @@ class DataAnnotation:
 
         # Display the filtered DataFrame
         st.write(head_df_filtered)
+
                     
                 
 
@@ -896,10 +909,10 @@ class DataAnnotation:
                 
             if grouping is not None and grouping == f"items_row{swap_row1}":
                 rect2.append(rect)
-        print("********&&&&&&&&&&&&")
-        print(rect1)
-        print("********&&&&&&&&&&&&$$$$$$$$$$$$$$")
-        print(rect2)   
+        # print("********&&&&&&&&&&&&")
+        # print(rect1)
+        # print("********&&&&&&&&&&&&$$$$$$$$$$$$$$")
+        # print(rect2)   
 
 
 
