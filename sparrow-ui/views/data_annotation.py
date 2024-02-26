@@ -14,7 +14,7 @@ import pandas as pd
 from toolbar_main import component_toolbar_main
 from st_aggrid import AgGrid, GridOptionsBuilder
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 
 class DataAnnotation:
@@ -226,10 +226,7 @@ class DataAnnotation:
                 
 
     def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor):
-        col1, col2 = st.columns(2)
-        # if "visibility" not in st.session_state:
-        #     st.session_state.visibility = "visible"
-        #     st.session_state.disabled = False
+        
         with st.container():
             # Retrieve words and meta from saved_state
             words = saved_state.get('words', [])
@@ -323,21 +320,21 @@ class DataAnnotation:
                     toolbar = st.empty()
                     
                     self.render_form_view(result_rects.rects_data['words'], model.labels, result_rects,
-                                        data_processor)
+                                        data_processor,model)
 
-                    with toolbar:
-                        submit = st.form_submit_button(model.save_text, type="primary")
-                        if submit:
-                            for word in result_rects.rects_data['words']:
-                                if len(word['value']) > 1000:
-                                    st.error(model.error_text)
-                                    return
+                    # with toolbar:
+                    #     submit = st.form_submit_button(model.save_text, type="primary")
+                    #     if submit:
+                    #         for word in result_rects.rects_data['words']:
+                    #             if len(word['value']) > 1000:
+                    #                 st.error(model.error_text)
+                    #                 return
 
-                            with open(model.rects_file, "w") as f:
-                                json.dump(result_rects.rects_data, f, indent=2)
-                            st.session_state[model.rects_file] = result_rects.rects_data
-                            # st.write(model.saved_text)
-                            st.experimental_rerun()
+                    #         with open(model.rects_file, "w") as f:
+                    #             json.dump(result_rects.rects_data, f, indent=2)
+                    #         st.session_state[model.rects_file] = result_rects.rects_data
+                    #         # st.write(model.saved_text)
+                    #         st.experimental_rerun()
                         
                        
 
@@ -355,7 +352,7 @@ class DataAnnotation:
                                             mime='application/json',
                                             help=model.download_hint)
 
-    def render_form_view(self, words, labels, result_rects, data_processor):
+    def render_form_view(self, words, labels, result_rects, data_processor, model):
         data = []
         for i, rect in enumerate(words):
             group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
@@ -411,6 +408,21 @@ class DataAnnotation:
                 #print(labels)
                 #print("Selected Label:", selected_label)  # Display selected label
                 data_processor.update_rect_data(result_rects.rects_data, i, value, label)
+        toolbar = st.empty()
+        with toolbar:
+            submit = st.form_submit_button("save", type="primary")
+            if submit:
+                # for word in result_rects.rects_data['words']:
+                #     if len(word['value']) > 1000:
+                #         st.error(model.error_text)
+                #         return
+
+                with open(model.rects_file, "w") as f:
+                    json.dump(result_rects.rects_data, f, indent=2)
+                st.session_state[model.rects_file] = result_rects.rects_data
+                # st.write(model.saved_text)
+                st.experimental_rerun()
+
             
 
     def canvas_available_width(self, ui_width, doc_width, device_type, device_width):
@@ -692,15 +704,17 @@ class DataAnnotation:
                         if rect['rect'] not in custom_rect_list:
                             value = rect['value'] 
                             group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
-                            multiple_data.append({ 'value': value, 'label': label})
+                            print(label)
+                            multiple_data.append({'value': value, 'label': label})
                             custom_rect_list.append(rect['rect'])
                             
                             
             dataFrame = pd.DataFrame(multiple_data)
+            print(multiple_data)
             #edited_df = st.data_editor(dataFrame, num_rows="dynamic")
             #print(multiple_data)
             formatter = {
-            'id': ('ID', {**PINLEFT, 'width': 50 }),
+            'id': ('ID', {**PINLEFT, 'width': 50,'hide':True }),
             'value': ('Value', PINLEFT),
             'label': ('Label', {**PINLEFT,
                             'width': 80,
@@ -716,6 +730,12 @@ class DataAnnotation:
                     'row-selected': 'data.id === ' + str(result_rects.current_rect_index)
                 }
             }
+            green_light = "#abf7b1"
+            css = {
+                '.row-selected': {
+                    'background-color': f'{green_light} !important'
+                }
+            }
             response = agstyler.draw_grid(
                 dataFrame,
                 formatter=formatter,
@@ -723,7 +743,8 @@ class DataAnnotation:
                 selection='multiple',
                 
                 pagination_size=40,
-                grid_options=go
+                grid_options=go,
+                
                 
             )
             updated_data = response['data'].values
@@ -886,6 +907,7 @@ class DataAnnotation:
         # Convert the dictionary to a DataFrame
         df = pd.DataFrame(table_data)
         df_filtered = df.dropna(axis=1, how='all')
+        df_filtered.index = np.arange(1 , len(df_filtered)+1)
         # grid = AgGrid(
         #     df.head(50),
         #     gridOptions=GridOptionsBuilder.from_dataframe(df_filtered).build(),
@@ -894,39 +916,49 @@ class DataAnnotation:
         
         # User input for rows to swap
         rect1 = []
-        rect2=[]
-        swap_row1 = st.number_input("Enter row 1 to swap (1-indexed):", min_value=1, max_value=len(df), value=1)
-        swap_row2 = st.number_input("Enter row 2 to swap (1-indexed):", min_value=1, max_value=len(df), value=1)
+        rect2 = []
+        swap_row1 = st.number_input("Enter row 1 :", min_value=1, max_value=len(df), value=1)
+        swap_row2 = st.number_input("Enter row 2 :", min_value=1, max_value=len(df), value=1)
         for i , rect in enumerate(words):
             #print(rect)
             grouping, labelling = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
         
             if grouping is not None and grouping == f"items_row{swap_row1}":
-                #print("hello")
-                #print(grouping)
-                
                 rect1.append(rect)
                 
-            if grouping is not None and grouping == f"items_row{swap_row1}":
+            if grouping is not None and grouping == f"items_row{swap_row2}":
                 rect2.append(rect)
         # print("********&&&&&&&&&&&&")
-        # print(rect1)
+        # print(rect1[0]['label'])
         # print("********&&&&&&&&&&&&$$$$$$$$$$$$$$")
-        # print(rect2)   
+        # print(rect2) 
+        group1 = rect1[0]['label'].split(":")[0] if rect1 else None
+        group2 = rect2[0]['label'].split(":")[0] if rect2 else None 
+        
 
+        # print("*******************")
+        # print(f"group1 :{group1}") 
+        # print(f"group1 :{group2}")
+        # print("*******************")
+        #swapping whole row
+        for rect in rect1:
+            grouping, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+            if grouping:
+                rect['label'] = f"{group2}:{label}"
+                print(f"rect of row1 :{rect['value']} {rect['label']}")
 
-
-        # Swap rows based on user input
+        for rect in rect2:
+            grouping, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+            if grouping:
+                rect['label'] = f"{group1}:{label}"
+                print(f"rect of row2 : {rect['value']} {rect['label']} ")
+                
+        
         if st.button("Swap Rows"):
-            if 1 <= swap_row1 <= len(df) and 1 <= swap_row2 <= len(df):
-                df_copy = df_filtered.copy()
-                df_copy.iloc[swap_row1 - 1], df_copy.iloc[swap_row2 - 1] = df_copy.iloc[swap_row2 - 1].copy(), df_copy.iloc[swap_row1 - 1].copy()
-                df_filtered.iloc[swap_row1 - 1], df_filtered.iloc[swap_row2 - 1] = df_copy.iloc[swap_row1 - 1], df_copy.iloc[swap_row2 - 1]
-                st.write(df_filtered)  # Display the swapped DataFrame
-                st.success("Rows swapped successfully!")
-
-            else:
-                st.error("Invalid row numbers! Please enter valid row numbers.")
+            with open(model.rects_file, "w") as f:
+                json.dump(result_rects.rects_data, f, indent=2)
+                st.session_state[model.rects_file] = result_rects.rects_data
+                st.experimental_rerun()
             
             
             
