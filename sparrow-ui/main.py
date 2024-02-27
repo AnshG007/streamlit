@@ -26,33 +26,35 @@ load_css()
 
 class Model:
     menuTitle = "Sparrow"
-    option1 = "Dashboard"
+    # option1 = "Dashboard"
     option2 = "Data Annotation"
-    option3 = "Model Training"
-    option4 = "Model Tuning"
-    option5 = "Inference"
-    option6 = "Data Review"
-    option7 = "Setup"
-    option8 = "About"
+    # option3 = "Model Training"
+    # option4 = "Model Tuning"
+    # option5 = "Inference"
+    # option6 = "Data Review"
+    # option7 = "Setup"
+    # option8 = "About"
     option9 = "Upload"
 
     menuIcon = "menu-up"
-    icon1 = "speedometer"
+    # icon1 = "speedometer"
     icon2 = "activity"
-    icon3 = "motherboard"
-    icon4 = "graph-up-arrow"
-    icon5 = "journal-arrow-down"
-    icon6 = "droplet"
-    icon7 = "clipboard-data"
-    icon8 = "chat"
+    # icon3 = "motherboard"
+    # icon4 = "graph-up-arrow"
+    # icon5 = "journal-arrow-down"
+    # icon6 = "droplet"
+    # icon7 = "clipboard-data"
+    # icon8 = "chat"
     icon9 = "uploader"
 
 
 def view(model):
     with st.sidebar:
         menuItem = option_menu(model.menuTitle,
-                               [model.option1, model.option2, model.option5, model.option6, model.option7, model.option8, model.option9],
-                               icons=[model.icon1, model.icon2, model.icon5, model.icon6, model.icon7, model.icon8, model.icon9],
+                            #    [model.option1, model.option2, model.option5, model.option6, model.option7, model.option8, model.option9],
+                            #    icons=[model.icon1, model.icon2, model.icon5, model.icon6, model.icon7, model.icon8, model.icon9],
+                               [model.option2 , model.option9],
+                               icons = [model.icon2,model.icon9],
                                menu_icon=model.menuIcon,
                                default_index=0,
                                styles={
@@ -63,9 +65,9 @@ def view(model):
                                    "nav-link-selected": {"background-color": "#037ffc"},
                                })
 
-    if menuItem == model.option1:
-        Dashboard().view(Dashboard.Model())
-        logout_widget()
+    # if menuItem == model.option1:
+    #     Dashboard().view(Dashboard.Model())
+    #     logout_widget()
 
     if menuItem == model.option2:
         if 'ui_width' not in st.session_state or 'device_type' not in st.session_state or 'device_width' not in st.session_state:
@@ -92,73 +94,73 @@ def view(model):
                                   st.session_state['device_width'])
         logout_widget()
 
-    if menuItem == model.option3:
-        ModelTraining().view(ModelTraining.Model())
-        logout_widget()
+    # if menuItem == model.option3:
+    #     ModelTraining().view(ModelTraining.Model())
+    #     logout_widget()
 
-    if menuItem == model.option4:
-        ModelTuning().view(ModelTuning.Model())
-        logout_widget()
+    # if menuItem == model.option4:
+    #     ModelTuning().view(ModelTuning.Model())
+    #     logout_widget()
 
-    if menuItem == model.option5:
-        if 'ui_width' not in st.session_state or 'device_type' not in st.session_state or 'device_width' not in st.session_state:
-            # Get UI width
-            ui_width = st_js.st_javascript("window.innerWidth", key="ui_width_comp")
-            device_width = st_js.st_javascript("window.screen.width", key="device_width_comp")
+    # if menuItem == model.option5:
+    #     if 'ui_width' not in st.session_state or 'device_type' not in st.session_state or 'device_width' not in st.session_state:
+    #         # Get UI width
+    #         ui_width = st_js.st_javascript("window.innerWidth", key="ui_width_comp")
+    #         device_width = st_js.st_javascript("window.screen.width", key="device_width_comp")
 
-            if ui_width > 0 and device_width > 0:
-                # Add 20% of current screen width to compensate for the sidebar
-                ui_width = round(ui_width + (20 * ui_width / 100))
+    #         if ui_width > 0 and device_width > 0:
+    #             # Add 20% of current screen width to compensate for the sidebar
+    #             ui_width = round(ui_width + (20 * ui_width / 100))
 
-                if device_width > 768:
-                    device_type = 'desktop'
-                else:
-                    device_type = 'mobile'
+    #             if device_width > 768:
+    #                 device_type = 'desktop'
+    #             else:
+    #                 device_type = 'mobile'
 
-                st.session_state['ui_width'] = ui_width
-                st.session_state['device_type'] = device_type
-                st.session_state['device_width'] = device_width
+    #             st.session_state['ui_width'] = ui_width
+    #             st.session_state['device_type'] = device_type
+    #             st.session_state['device_width'] = device_width
 
-                st.experimental_rerun()
-        else:
-            DataInference().view(DataInference.Model(), st.session_state['ui_width'], st.session_state['device_type'],
-                                 st.session_state['device_width'])
+    #             st.experimental_rerun()
+    #     else:
+    #         DataInference().view(DataInference.Model(), st.session_state['ui_width'], st.session_state['device_type'],
+    #                              st.session_state['device_width'])
 
-        logout_widget()
+    #     logout_widget()
 
-    if menuItem == model.option6:
-        if 'ui_width' not in st.session_state or 'device_type' not in st.session_state or 'device_width' not in st.session_state:
-            # Get UI width
-            ui_width = st_js.st_javascript("window.innerWidth", key="ui_width_comp")
-            device_width = st_js.st_javascript("window.screen.width", key="device_width_comp")
+    # if menuItem == model.option6:
+    #     if 'ui_width' not in st.session_state or 'device_type' not in st.session_state or 'device_width' not in st.session_state:
+    #         # Get UI width
+    #         ui_width = st_js.st_javascript("window.innerWidth", key="ui_width_comp")
+    #         device_width = st_js.st_javascript("window.screen.width", key="device_width_comp")
 
-            if ui_width > 0 and device_width > 0:
-                # Add 20% of current screen width to compensate for the sidebar
-                ui_width = round(ui_width + (20 * ui_width / 100))
+    #         if ui_width > 0 and device_width > 0:
+    #             # Add 20% of current screen width to compensate for the sidebar
+    #             ui_width = round(ui_width + (20 * ui_width / 100))
 
-                if device_width > 768:
-                    device_type = 'desktop'
-                else:
-                    device_type = 'mobile'
+    #             if device_width > 768:
+    #                 device_type = 'desktop'
+    #             else:
+    #                 device_type = 'mobile'
 
-                st.session_state['ui_width'] = ui_width
-                st.session_state['device_type'] = device_type
-                st.session_state['device_width'] = device_width
+    #             st.session_state['ui_width'] = ui_width
+    #             st.session_state['device_type'] = device_type
+    #             st.session_state['device_width'] = device_width
 
-                st.experimental_rerun()
-        else:
-            DataReview().view(DataReview.Model(), st.session_state['ui_width'], st.session_state['device_type'],
-                              st.session_state['device_width'])
+    #             st.experimental_rerun()
+    #     else:
+    #         DataReview().view(DataReview.Model(), st.session_state['ui_width'], st.session_state['device_type'],
+    #                           st.session_state['device_width'])
 
-        logout_widget()
+    #     logout_widget()
 
-    if menuItem == model.option7:
-        Setup().view(Setup.Model())
-        logout_widget()
+    # if menuItem == model.option7:
+    #     Setup().view(Setup.Model())
+    #     logout_widget()
 
-    if menuItem == model.option8:
-        About().view(About.Model())
-        logout_widget()
+    # if menuItem == model.option8:
+    #     About().view(About.Model())
+    #     logout_widget()
 
     if menuItem == model.option9:
         uploader_instance = Uploader()
