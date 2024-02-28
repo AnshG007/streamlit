@@ -45,7 +45,7 @@ class DataAnnotation:
 
         subheader_1 = "Select"
         subheader_2 = "Upload"
-        annotation_text = "Annotation"
+        annotation_text = "Annotation's File Names"
         no_annotation_file = "No annotation file selected"
         no_annotation_mapping = "Please annotate the document. Uncheck 'Assign Labels' and draw new annotations"
 
@@ -100,7 +100,7 @@ class DataAnnotation:
 
         with st.sidebar:
             st.markdown("---")
-            st.subheader(model.subheader_1)
+            #st.subheader(model.subheader_1)
 
             placeholder_upload = st.empty()
 
@@ -123,6 +123,9 @@ class DataAnnotation:
             model.rects_file = f"docs/json/{annotation_selection}.json"
             model.key_file = f"docs/json/key/{annotation_selection}.json"
 
+            # print(f"before render doc {model.img_file}")
+            # print(f"before render doc {model.rects_file}")
+
             completed_check = st.empty()
 
             btn = st.button(model.export_labels_text)
@@ -130,30 +133,28 @@ class DataAnnotation:
                 self.export_labels(model)
                 st.write(model.done_text)
 
-            st.subheader(model.subheader_2)
+            # st.subheader(model.subheader_2)
 
-            with st.form("upload-form", clear_on_submit=True):
-                uploaded_file = st.file_uploader(model.upload_button_text_desc, accept_multiple_files=False,
-                                                 type=['png', 'jpg', 'jpeg'],
-                                                 help=model.upload_help)
-                submitted = st.form_submit_button(model.upload_button_text)
+            # with st.form("upload-form", clear_on_submit=True):
+            #     uploaded_file = st.file_uploader(model.upload_button_text_desc, accept_multiple_files=False,
+            #                                      type=['png', 'jpg', 'jpeg'],
+            #                                      help=model.upload_help)
+            #     submitted = st.form_submit_button(model.upload_button_text)
 
-                if submitted and uploaded_file is not None:
-                    ret = self.upload_file(uploaded_file)
+            #     if submitted and uploaded_file is not None:
+            #         ret = self.upload_file(uploaded_file)
 
-                    if ret is not False:
-                        file_names = self.get_existing_file_names('docs/images/')
+            #         if ret is not False:
+            #             file_names = self.get_existing_file_names('docs/images/')
 
-                        annotation_index = self.get_annotation_index(annotation_selection, file_names)
-                        annotation_selection = placeholder_upload.selectbox(model.annotation_text, file_names,
-                                                                            index=annotation_index,
-                                                                            help=model.annotation_selection_help)
-                        st.session_state['annotation_index'] = annotation_index
+            #             annotation_index = self.get_annotation_index(annotation_selection, file_names)
+            #             annotation_selection = placeholder_upload.selectbox(model.annotation_text, file_names,
+            #                                                                 index=annotation_index,
+            #                                                                 help=model.annotation_selection_help)
+            #             st.session_state['annotation_index'] = annotation_index
 
         # st.title(model.pageTitle + " - " + annotation_selection)
-        # l = []
-        # for i in self.get_existing_file_names('docs/images/'):
-        #     l.append(i)
+       
         
 
         if model.img_file is None:
@@ -233,21 +234,45 @@ class DataAnnotation:
                 
 
     def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor):
+        if 'annotation_index' not in st.session_state:
+            st.session_state['annotation_index'] = 0
+        annotation_index = st.session_state['annotation_index']
+
+        # Retrieve list of filenames
         l = []
         for i in self.get_existing_file_names('docs/images/'):
-            parts = i.split('.')
+            extension = self.get_file_extension(i, 'docs/images/')
+            full_file_name = i + extension
+            l.append(full_file_name)
 
-            l.append(parts[0])
-        print(l)
-        t = model.img_file.split('/')
-        fileName = t[2]
+        # Get the current filename
+        # t = model.img_file.split('/')
+        # fileName = t[2]
+
+        next_button = st.button("Next")
+
+        if next_button:
+            # Move to the next filename in the list
+            print("hello")
+            annotation_index = (annotation_index + 1) % len(l)
+            st.session_state['annotation_index'] = annotation_index
+
+        # Get the filename at the updated index
         
+        filename_at_index = l[annotation_index]
 
+        # Check if it ends with ".jpg" and remove if necessary
+        if filename_at_index.endswith(".jpg"):
+            result = filename_at_index[:-4]
+        elif filename_at_index.endswith(".jpeg"):
+            result = filename_at_index[:-5]
+        else:
+            result = filename_at_index
 
-        next = st.button("next")
-    
-        prev = st.button("prev")
-        
+        # Update the model's img_file and rects_file
+        model.img_file = f"docs/images/{filename_at_index}"
+        model.rects_file = f"docs/json/{result}.json"
+       
         with st.container():
             # Retrieve words and meta from saved_state
             words = saved_state.get('words', [])
@@ -596,10 +621,10 @@ class DataAnnotation:
         with st.container():
             run_subprocess_button = st.button("Run Subprocess")
             if run_subprocess_button:
-                print("HELLO")
+                
                 subprocess.run(["python", "../sparrow-data/try.py", model.rects_file])
                 updated_data = json.load(open(model.rects_file))
-                print("world")
+                
                 # with open(model.rects_file, "w") as f:
                 #     json.dump(result_rects.rects_data, f, indent=2)
                 
@@ -609,42 +634,42 @@ class DataAnnotation:
 
         
         #Multiple selection
-        del_data = result_rects.rects_data
-        del_button = st.button("Delete")
-        if del_button:
-            #print(f"before : {len(del_data['words'])}")
-            del_words = del_data['words']
-            #print(del_words)
-            for i, rect in enumerate(del_words):
-                if i == result_rects.current_rect_index :
+        # del_data = result_rects.rects_data
+        # del_button = st.button("Delete")
+        # if del_button:
+        #     #print(f"before : {len(del_data['words'])}")
+        #     del_words = del_data['words']
+        #     #print(del_words)
+        #     for i, rect in enumerate(del_words):
+        #         if i == result_rects.current_rect_index :
                     
-                    if i in model.l:
+        #             if i in model.l:
                         
-                        value = rect['value']
-                        index = i
-                        model.copy = i
-                        for item in model.v:
-                            if value in model.v:
-                                model.v.remove(value)
-                        del_words.pop(index)
-                        model.l.remove(i)
-                        result_rects.current_rect_index = None
+        #                 value = rect['value']
+        #                 index = i
+        #                 model.copy = i
+        #                 for item in model.v:
+        #                     if value in model.v:
+        #                         model.v.remove(value)
+        #                 del_words.pop(index)
+        #                 model.l.remove(i)
+        #                 result_rects.current_rect_index = None
                         
-                        print("#####################################################################")
-                        print(i)
-                        print(model.l) 
-                        print(model.v) 
-                        print(result_rects.current_rect_index)          
-                        print("#####################################################################")
-            print(f"model.v after the deletion: {model.v}")             
-            del_data['words'] = del_words
-            #print(f"after : {len(del_data['words'])}")
-            #result_rects.rects_data['words'] = del_data['words']
-            with open(model.rects_file, 'w') as f:
-                json.dump(del_data, f, indent=2)
-            st.session_state[model.rects_file] = del_data
-            print("rerun just begin to work")
-            st.experimental_rerun()
+        #                 print("#####################################################################")
+        #                 print(i)
+        #                 print(model.l) 
+        #                 print(model.v) 
+        #                 print(result_rects.current_rect_index)          
+        #                 print("#####################################################################")
+        #     print(f"model.v after the deletion: {model.v}")             
+        #     del_data['words'] = del_words
+        #     #print(f"after : {len(del_data['words'])}")
+        #     #result_rects.rects_data['words'] = del_data['words']
+        #     with open(model.rects_file, 'w') as f:
+        #         json.dump(del_data, f, indent=2)
+        #     st.session_state[model.rects_file] = del_data
+        #     print("rerun just begin to work")
+        #     st.experimental_rerun()
             
         toolbar = st.empty()
         with toolbar:
@@ -725,8 +750,9 @@ class DataAnnotation:
                 css = css
                 
             )
+            
             updated_data = response['data'].values
-            #print(updated_data)
+            
             for index, v in enumerate(model.l):
                 if v < len(words):
                         rect = words[v]  # Get the rectangle corresponding to the index in model.l
@@ -763,119 +789,123 @@ class DataAnnotation:
         
         sorted_list = ['lineNumber', 'productCode', 'productName', 'productDesc', 'orderedQuantity', 'backOrderedQuantity', 'shippedQuantity', 'unitPrice', 'amount']
         sorted_list_header=['invoiceDate','invoiceNumber','salesOrderNumber','poNumber']
-        words = result_rects.rects_data['words']
-        seen_combinations = set()
-        seen_labels = set()
-        # Create an empty dictionary to hold data for each column
-        table_data = {col: [] for col in sorted_list}
-        header_data = {col: [None] for col in sorted_list_header}
-        max_l = 0
-        for rect in words:
-            group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+        try :
+            words = result_rects.rects_data['words']
+
+            seen_combinations = set()
+            seen_labels = set()
+            # Create an empty dictionary to hold data for each column
+            table_data = {col: [] for col in sorted_list}
+            header_data = {col: [None] for col in sorted_list_header}
             
-            extract_int = None
+            for rect in words:
+                group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+                
+                extract_int = None
+                
+                if group is not None and group[-1].isdigit():  # Check if the last character is a digit
+                    if len(group) >= 2 and group[-2].isdigit():  # Check if the second to last character is also a digit
+                        extract_int = int(group[-2:])  # Extract the last two characters as an integer
+                        #print(extract_int)
+                    else:
+                        extract_int = int(group[-1])
+                    #extract_int = extract_int - 1
+                    
+                    
+                if label != "":
+                    if (label, extract_int) not in seen_combinations:
+                        seen_combinations.add((label, extract_int))
+                        for col in sorted_list:
+                            if label == col:
+                                # Append the value to the corresponding column in the table_data dictionary based on the row number
+                                if extract_int is not None:
+                                    max_length = max(len(table_data[col]), extract_int)
+                                    table_data[col] += [None] * (max_length - len(table_data[col]))  # Fill in None for preceding rows
+                                    table_data[col][extract_int - 1] = rect['value'] 
+                        
+                    
+                        if label not in seen_labels:
+                            seen_labels.add(label)
+                            for col_head in sorted_list_header:
+                                
+                                if label == col_head:
+                                    header_data[col_head][0] = rect['value']
+                                    
+
+            # Convert header_data to DataFrame
+            head_df = pd.DataFrame(header_data)
+        
+            # Remove columns with all NaN values
+            head_df_filtered = head_df.dropna(axis=1, how='all')
+
+            # Display the filtered DataFrame
+            st.write(head_df_filtered)
+
+                        
+                    
+
+            # Fill missing values with None if any column lengths are different
+            max_length = max(len(values) for values in table_data.values())
+            for col in table_data:
+                table_data[col] += [None] * (max_length - len(table_data[col]))
+
+            # Convert the dictionary to a DataFrame
+            df = pd.DataFrame(table_data)
+            df_filtered = df.dropna(axis=1, how='all')
+            df_filtered.index = np.arange(1 , len(df_filtered)+1)
+            # grid = AgGrid(
+            #     df.head(50),
+            #     gridOptions=GridOptionsBuilder.from_dataframe(df_filtered).build(),
+            # )
+            st.write(df_filtered)
             
-            if group is not None and group[-1].isdigit():  # Check if the last character is a digit
-                if len(group) >= 2 and group[-2].isdigit():  # Check if the second to last character is also a digit
-                    extract_int = int(group[-2:])  # Extract the last two characters as an integer
-                    #print(extract_int)
-                else:
-                    extract_int = int(group[-1])
-                #extract_int = extract_int - 1
-                
-                
-            if label != "":
-                if (label, extract_int) not in seen_combinations:
-                    seen_combinations.add((label, extract_int))
-                    for col in sorted_list:
-                        if label == col:
-                            # Append the value to the corresponding column in the table_data dictionary based on the row number
-                            if extract_int is not None:
-                                max_length = max(len(table_data[col]), extract_int)
-                                table_data[col] += [None] * (max_length - len(table_data[col]))  # Fill in None for preceding rows
-                                table_data[col][extract_int - 1] = rect['value'] 
+            # User input for rows to swap
+            rect1 = []
+            rect2 = []
+            swap_row1 = st.number_input("Enter row 1 :", min_value=1, max_value=len(df), value=1)
+            swap_row2 = st.number_input("Enter row 2 :", min_value=1, max_value=len(df), value=1)
+            for i , rect in enumerate(words):
+                #print(rect)
+                grouping, labelling = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+            
+                if grouping is not None and grouping == f"items_row{swap_row1}":
+                    rect1.append(rect)
                     
-                
-                    if label not in seen_labels:
-                        seen_labels.add(label)
-                        for col_head in sorted_list_header:
-                            print(label)
-                            if label == col_head:
-                                header_data[col_head][0] = rect['value']
-                                print(rect['value'])
+                if grouping is not None and grouping == f"items_row{swap_row2}":
+                    rect2.append(rect)
+            # print("********&&&&&&&&&&&&")
+            # print(rect1[0]['label'])
+            # print("********&&&&&&&&&&&&$$$$$$$$$$$$$$")
+            # print(rect2) 
+            group1 = rect1[0]['label'].split(":")[0] if rect1 else None
+            group2 = rect2[0]['label'].split(":")[0] if rect2 else None 
+            
 
-        # Convert header_data to DataFrame
-        head_df = pd.DataFrame(header_data)
-        print(head_df)
-        # Remove columns with all NaN values
-        head_df_filtered = head_df.dropna(axis=1, how='all')
+            # print("*******************")
+            # print(f"group1 :{group1}") 
+            # print(f"group1 :{group2}")
+            # print("*******************")
+            #swapping whole row
+            for rect in rect1:
+                grouping, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+                if grouping:
+                    rect['label'] = f"{group2}:{label}"
+                    #print(f"rect of row1 :{rect['value']} {rect['label']}")
 
-        # Display the filtered DataFrame
-        st.write(head_df_filtered)
-
+            for rect in rect2:
+                grouping, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+                if grouping:
+                    rect['label'] = f"{group1}:{label}"
+                    #print(f"rect of row2 : {rect['value']} {rect['label']} ")
                     
-                
-
-        # Fill missing values with None if any column lengths are different
-        max_length = max(len(values) for values in table_data.values())
-        for col in table_data:
-            table_data[col] += [None] * (max_length - len(table_data[col]))
-
-        # Convert the dictionary to a DataFrame
-        df = pd.DataFrame(table_data)
-        df_filtered = df.dropna(axis=1, how='all')
-        df_filtered.index = np.arange(1 , len(df_filtered)+1)
-        # grid = AgGrid(
-        #     df.head(50),
-        #     gridOptions=GridOptionsBuilder.from_dataframe(df_filtered).build(),
-        # )
-        st.write(df_filtered)
-        
-        # User input for rows to swap
-        rect1 = []
-        rect2 = []
-        swap_row1 = st.number_input("Enter row 1 :", min_value=1, max_value=len(df), value=1)
-        swap_row2 = st.number_input("Enter row 2 :", min_value=1, max_value=len(df), value=1)
-        for i , rect in enumerate(words):
-            #print(rect)
-            grouping, labelling = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
-        
-            if grouping is not None and grouping == f"items_row{swap_row1}":
-                rect1.append(rect)
-                
-            if grouping is not None and grouping == f"items_row{swap_row2}":
-                rect2.append(rect)
-        # print("********&&&&&&&&&&&&")
-        # print(rect1[0]['label'])
-        # print("********&&&&&&&&&&&&$$$$$$$$$$$$$$")
-        # print(rect2) 
-        group1 = rect1[0]['label'].split(":")[0] if rect1 else None
-        group2 = rect2[0]['label'].split(":")[0] if rect2 else None 
-        
-
-        # print("*******************")
-        # print(f"group1 :{group1}") 
-        # print(f"group1 :{group2}")
-        # print("*******************")
-        #swapping whole row
-        for rect in rect1:
-            grouping, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
-            if grouping:
-                rect['label'] = f"{group2}:{label}"
-                print(f"rect of row1 :{rect['value']} {rect['label']}")
-
-        for rect in rect2:
-            grouping, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
-            if grouping:
-                rect['label'] = f"{group1}:{label}"
-                print(f"rect of row2 : {rect['value']} {rect['label']} ")
-                
-        
-        if st.button("Swap Rows"):
-            with open(model.rects_file, "w") as f:
-                json.dump(result_rects.rects_data, f, indent=2)
-                st.session_state[model.rects_file] = result_rects.rects_data
-                st.experimental_rerun()
+            
+            if st.button("Swap Rows"):
+                with open(model.rects_file, "w") as f:
+                    json.dump(result_rects.rects_data, f, indent=2)
+                    st.session_state[model.rects_file] = result_rects.rects_data
+                    st.experimental_rerun()
+        except:
+            pass
             
 
     def order_annotations(self, model, labels, groups, result_rects):
