@@ -75,8 +75,12 @@ class DataAnnotation:
         selection_must_be_continuous = "Please select continuous rows"
         l = []
         v = []
-        copy = None
+        
         rect_list = []
+        indexes = []
+        valuesAtIndex = []
+        list_of_rect =[]
+        bbox_ids = []
         
 
     def view(self, model, ui_width, device_type, device_width):
@@ -211,7 +215,7 @@ class DataAnnotation:
                 with col1:
                     result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor)
                 with col2:
-                    tab = st.radio("Select", ["Mapping", "Grouping", "Ordering", "Selected", "Review"], horizontal=True,
+                    tab = st.radio("Select", ["Mapping","Grouping","Ordering","Selected Grouping" ,"Selected", "Review"], horizontal=True,
                                    label_visibility="collapsed")
                     
                     if tab == "Selected":
@@ -220,13 +224,15 @@ class DataAnnotation:
                         self.render_form(model, result_rects, data_processor, annotation_selection)
                     elif tab == "Grouping":
                         self.group_annotations(model, result_rects)
+                    if tab == "Selected Grouping":
+                        self.SelectedGrouping(model, result_rects, data_processor)
                     elif tab == "Ordering":
                         self.order_annotations(model, model.labels, model.groups, result_rects)
                     
                     elif tab == "Review":
                         self.observations(model ,result_rects)
             else:
-                result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width)
+                result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor)
                 tab = st.radio("Select", ["Mapping", "Grouping"], horizontal=True, label_visibility="collapsed")
                 if tab == "Mapping":
                     self.render_form(model, result_rects, data_processor, annotation_selection)
@@ -234,7 +240,7 @@ class DataAnnotation:
                     self.group_annotations(model, result_rects)
                 
 
-    def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor):
+    def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width, data_processor):
         with st.container():
            
             # Retrieve annotation index and current invoice index from session state
@@ -242,6 +248,8 @@ class DataAnnotation:
                 st.session_state['annotation_index'] = 0
             if 'invoice_index' not in st.session_state:
                 st.session_state['invoice_index'] = 0
+            if 'button_clicked' not in st.session_state:
+                st.session_state['button_clicked'] = False
 
             annotation_index = st.session_state['annotation_index']
             invoice_index = st.session_state['invoice_index']
@@ -280,7 +288,7 @@ class DataAnnotation:
             fileName = t[2]
             result = fileName.split('.',1)[0]
 
-            next_button = st.button("Next Invoice")
+            #next_button = st.button("Next Invoice")
 
              # Pages of the same invoice
             rem = []
@@ -303,17 +311,33 @@ class DataAnnotation:
                 if value_result1 in rem:
                     value_result4 = value_result1 + '.' + value_result3
                     remaining_files.append(value_result4)
+
             st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
             
-            selected_page_index = st.radio("Select Page", range(len(same_invoice_pages)), index= 0, key="radio1")
 
-           
+            selected_page_index = st.radio("Select Page", range(len(same_invoice_pages)), key="selectbox1")
+
+
+            if selected_page_index != annotation_index:
+                print("hello world")
+                annotation_index = selected_page_index
+                
+                st.session_state['annotation_index'] = annotation_index
+                st.session_state['selected_page_index'] = selected_page_index
+                selected_page = same_invoice_pages[selected_page_index]
+                selected_page_json = selected_page[:-4]
+                
+                model.img_file = f"docs/images/{selected_page}"
+                model.rects_file = f"docs/json/{selected_page_json}.json"
+                print(f"select box ke andar {model.img_file}")
+                print(f"select box ke andar {model.rects_file}")    
+                
             
-
-            if next_button:
+            if st.button("Next Invoice"):
+                st.session_state['button_clicked'] = True
                 current_index = l.index(fileName)
                 index = (len(same_invoice_pages) - selected_page_index  + len(l[:current_index]))
-                print(index)
+                print(selected_page_index)
                 if index < len(l):
                     # if invoice_index < len(remaining_files):
                     #next_invoice_name = f"{remaining_files[invoice_index]}.jpg"
@@ -321,13 +345,14 @@ class DataAnnotation:
                     print(next_invoice_name)
                     #next_invoice_index = l.index(next_invoice_name)
                     next_invoice_json = l[index][:-4]
-                    #print(next_invoice_json)
-                    st.session_state['annotation_index'] = index
                     
                     model.img_file = f"docs/images/{next_invoice_name}"
                     model.rects_file = f"docs/json/{next_invoice_json}.json"
-                    print(model.img_file)
-                    print(model.rects_file)
+                    st.session_state['annotation_index'] = index
+                    # print(f"next button ke andar {model.img_file}")
+                    # print(f"next button  ke andar {model.rects_file}")
+                    
+                    
                 else:
                     index = 0
                     next_invoice_name = l[index]
@@ -336,24 +361,13 @@ class DataAnnotation:
                     next_invoice_json = l[index]
                     #print(next_invoice_json)
                     st.session_state['annotation_index'] = index
-                    
                     model.img_file = f"docs/images/{next_invoice_name}"
                     model.rects_file = f"docs/json/{next_invoice_json}.json"
-                
-             #Update the model's img_file and rects_file when a radio button is selected
-            if selected_page_index != annotation_index:
-                print("hello world")
-                annotation_index = selected_page_index
-                st.session_state['annotation_index'] = annotation_index
-                selected_page = same_invoice_pages[selected_page_index]
-                selected_page_json = selected_page[:-4]
-                model.img_file = f"docs/images/{selected_page}"
-                model.rects_file = f"docs/json/{selected_page_json}.json"
-                
             
-                
-                
-           
+
+            if st.session_state['button_clicked']:
+                st.session_state['button_clicked'] = False       
+
             words = saved_state.get('words', [])
             meta_info = saved_state.get('meta', {})
 
@@ -425,6 +439,7 @@ class DataAnnotation:
             run_subprocess_button = st.button("Run Subprocess")
             if run_subprocess_button:
                 print("HELLO")
+                print(model.rects_file)
                 subprocess.run(["python", "../sparrow-data/try.py", model.rects_file])
                 updated_data = json.load(open(model.rects_file))
                 print("world")
@@ -616,18 +631,178 @@ class DataAnnotation:
         return files_list.index(file)
 
 
-    def group_annotations(self, model, result_rects):
-        with st.form(key="grouping_form"):
+    # def group_annotations(self, model, result_rects):
+    #     with st.form(key="grouping_form"):
+    #         if result_rects is not None:
+    #             words = result_rects.rects_data['words']
+    #             data = []
+    #             for i, rect in enumerate(words):
+    #                 data.append({'id': i, 'value': rect['value']})
+    #             df = pd.DataFrame(data)
+
+    #             formatter = {
+    #                 'id': ('ID', {**PINLEFT, 'width': 50}),
+    #                 'value': ('Value', PINLEFT)
+    #             }
+
+    #             toolbar = st.empty()
+
+    #             response = agstyler.draw_grid(
+    #                 df,
+    #                 formatter=formatter,
+    #                 fit_columns=True,
+    #                 selection='multiple',
+    #                 use_checkbox='True',
+    #                 pagination_size=40
+    #             )
+
+    #             rows = response['selected_rows']
+
+    #             with toolbar:
+    #                 submit = st.form_submit_button(model.save_text, type="primary")
+    #                 if submit and len(rows) > 0:
+    #                     # check if there are gaps in the selected rows
+    #                     # if len(rows) > 1:
+    #                     #     for i in range(len(rows) - 1):
+    #                     #         if rows[i]['id'] + 1 != rows[i + 1]['id']:
+    #                     #             st.error(model.selection_must_be_continuous)
+    #                     #             return
+
+    #                     words = result_rects.rects_data['words']
+    #                     new_words_list = []
+    #                     coords = []
+    #                     for row in rows:
+    #                         word_value = words[row['id']]['value']
+    #                         rect = words[row['id']]['rect']
+    #                         coords.append(rect)
+    #                         new_words_list.append(word_value)
+    #                     # convert array to string
+    #                     new_word = " ".join(new_words_list)
+
+    #                     # Get min x1 value from coords array
+    #                     x1_min = min([coord['x1'] for coord in coords])
+    #                     y1_min = min([coord['y1'] for coord in coords])
+    #                     x2_max = max([coord['x2'] for coord in coords])
+    #                     y2_max = max([coord['y2'] for coord in coords])
+
+
+    #                     words[rows[0]['id']]['value'] = new_word
+    #                     words[rows[0]['id']]['rect'] = {
+    #                         "x1": x1_min,
+    #                         "y1": y1_min,
+    #                         "x2": x2_max,
+    #                         "y2": y2_max
+    #                     }
+
+    #                     # loop array in reverse order and remove selected entries
+    #                     i = 0
+    #                     for row in rows[::-1]:
+    #                         if i == len(rows) - 1:
+    #                             break
+    #                         del words[row['id']]
+    #                         i += 1
+
+    #                     result_rects.rects_data['words'] = words
+
+    #                     with open(model.rects_file, "w") as f:
+    #                         json.dump(result_rects.rects_data, f, indent=2)
+    #                     st.session_state[model.rects_file] = result_rects.rects_data
+    #                     st.experimental_rerun()
+
+    def SelectedGrouping(self, model, result_rects,data_processor):
+       # print(model.indexes)
+        # check = st.checkbox("active")
+        # Define a function to execute JavaScript code
+        col1 , col2 , col3,col4 = st.columns(4)
+        if 'click' not in st.session_state:
+            st.session_state['click'] = False
+        with col1:
+            refresh = st.button("Refresh")
+        with col2:
+            save_label = st.button("Save Label", type="secondary") 
+        with col3:
+            run_subprocess_button = st.button("Auto Label")
+            if run_subprocess_button:
+                    print(result_rects.rects_data)
+                    print("HELLO")
+                    #print(model.rects_file)
+                    subprocess.run(["python", "../sparrow-data/try.py", model.rects_file])
+                    updated_data = json.load(open(model.rects_file))
+                    print("world")
+                    # with open(model.rects_file, "w") as f:
+                    #     json.dump(result_rects.rects_data, f, indent=2)
+                    # print("********************************************")
+                    # print(updated_data)
+                    # print("********************************************")
+                    # Update the Streamlit app's state with the modified data
+                    st.session_state[model.rects_file] = updated_data
+                    st.experimental_rerun()
+        with col4:
+            auto_ordering = st.button("Auto order")
+
+        
+        if refresh:
+            model.valuesAtIndex.clear()
+            model.indexes.clear()
+            model.list_of_rect.clear()
+            del result_rects.current_rect_index
+        with st.form(key="grouping"):
+
             if result_rects is not None:
                 words = result_rects.rects_data['words']
                 data = []
                 for i, rect in enumerate(words):
-                    data.append({'id': i, 'value': rect['value']})
-                df = pd.DataFrame(data)
+                        if i == result_rects.current_rect_index:
+                            if rect['rect'] not in model.list_of_rect:
+                                    model.indexes.append(i)
+                                    model.valuesAtIndex.append(rect['value'])
+                                    model.list_of_rect.append(rect['rect'])
+                                    #model.bbox_ids.append(i)
+                                
+                        
+                      
+                #print(model.bbox_ids)    
+                            # else:
+                            #     model.valuesAtIndex.clear()
+                            #     model.indexes.clear()
+                            #     model.list_of_rect.clear()
+                            #     del result_rects.current_rect_index
+                #df = pd.DataFrame(data)
+                #print(model.valuesAtIndex)
+                custom_rect_list = []
+                
+                for index , rect in enumerate(words):
+                    for i , v in enumerate(model.indexes):
+                        if index == v :
+                            if rect['rect'] not in custom_rect_list:
+                                value = rect['value'] 
+                                group, label = rect['label'].split(":", 1) if ":" in rect['label'] else ("", rect['label'])
+                                # # #print(label)
+                                # if ":" in group:
+                                #     group.replace(":","")
+                                
+                                data.append({'id':index , 'value': value ,'label':label , 'group':group})
+                                custom_rect_list.append(rect['rect'])
+                #print(custom_rect_list)
 
+                df = pd.DataFrame(data)
                 formatter = {
-                    'id': ('ID', {**PINLEFT, 'width': 50}),
-                    'value': ('Value', PINLEFT)
+                'id': ('ID', {**PINLEFT, 'width': 50}),
+                'value': ('Value',{**PINLEFT , 'editable': True}),
+                'label': ('Label', {**PINLEFT,
+                                'width': 80,
+                                'editable': True,
+                                'cellEditor': 'agSelectCellEditor',
+                                'cellEditorParams': {
+                                    'values': model.labels
+                                }}),
+                'group': ('Group', {**PINLEFT,
+                                    'width': 80,
+                                    'editable': True,
+                                    'cellEditor': 'agSelectCellEditor',
+                                    'cellEditorParams': {
+                                        'values': model.groups
+                                    }})
                 }
 
                 toolbar = st.empty()
@@ -638,61 +813,185 @@ class DataAnnotation:
                     fit_columns=True,
                     selection='multiple',
                     use_checkbox='True',
-                    pagination_size=40
+                    pagination_size=40,
+                    
+                    
                 )
-
+                
                 rows = response['selected_rows']
+                # data = response['data'].values.tolist()
+                # print(data)  
+                    
+                 
 
-                with toolbar:
-                    submit = st.form_submit_button(model.save_text, type="primary")
-                    if submit and len(rows) > 0:
-                        # check if there are gaps in the selected rows
-                        if len(rows) > 1:
-                            for i in range(len(rows) - 1):
-                                if rows[i]['id'] + 1 != rows[i + 1]['id']:
-                                    st.error(model.selection_must_be_continuous)
-                                    return
+                submit_btn = st.form_submit_button("save", type="primary")
+                    
+                if len(rows)>0:
+                    # check if there are gaps in the selected rows
+                    # if len(rows) > 1:
+                    #     for i in range(len(rows) - 1):
+                    #         if rows[i]['id'] + 1 != rows[i + 1]['id']:
+                    #             st.error(model.selection_must_be_continuous)
+                    #             return
 
-                        words = result_rects.rects_data['words']
-                        new_words_list = []
-                        coords = []
-                        for row in rows:
-                            word_value = words[row['id']]['value']
-                            rect = words[row['id']]['rect']
-                            coords.append(rect)
-                            new_words_list.append(word_value)
-                        # convert array to string
-                        new_word = " ".join(new_words_list)
+                    words = result_rects.rects_data['words']
+                    new_words_list = []
+                    coords = []
+                    rem_value = []
+                    for row in rows:
+                        word_value = words[row['id']]['value']
+                        rect = words[row['id']]['rect']
+                        coords.append(rect)
+                        new_words_list.append(word_value)
+                    # convert array to string
+                    new_word = " ".join(new_words_list)
+                    rem_value.append(new_word)
+                    # if "new_word" not in st.session_state:
+                    #     st.session_state["new_words"] = rem_value
 
-                        # Get min x1 value from coords array
-                        x1_min = min([coord['x1'] for coord in coords])
-                        y1_min = min([coord['y1'] for coord in coords])
-                        x2_max = max([coord['x2'] for coord in coords])
-                        y2_max = max([coord['y2'] for coord in coords])
+                    # Get min x1 value from coords array
+                    x1_min = min([coord['x1'] for coord in coords])
+                    y1_min = min([coord['y1'] for coord in coords])
+                    x2_max = max([coord['x2'] for coord in coords])
+                    y2_max = max([coord['y2'] for coord in coords])
 
 
-                        words[rows[0]['id']]['value'] = new_word
-                        words[rows[0]['id']]['rect'] = {
-                            "x1": x1_min,
-                            "y1": y1_min,
-                            "x2": x2_max,
-                            "y2": y2_max
-                        }
+                    words[rows[0]['id']]['value'] = new_word
+                    words[rows[0]['id']]['rect'] = {
+                        "x1": x1_min,
+                        "y1": y1_min,
+                        "x2": x2_max,
+                        "y2": y2_max
+                    }
+                    
+                    # loop array in reverse order and remove selected entries
+                    i = 0
+                    max_value = 0
+                    min_value = float('inf')
+                    for row in rows[::-1]:
+                        
+                        if i == len(rows) - 1:
 
-                        # loop array in reverse order and remove selected entries
-                        i = 0
-                        for row in rows[::-1]:
-                            if i == len(rows) - 1:
-                                break
-                            del words[row['id']]
-                            i += 1
+                            break
+                        del words[row['id']]
+                        i += 1
+                    
+                    # for item in model.valuesAtIndex:
+                    #     if item == new_word:
+                    #         pass
+                    #     else:
+                    #         model.valuesAtIndex.remove(item)
+                    
+                    for row in rows:
+                        #print(f"row id {row['id']}")
+                        if max_value < row['id']:
+                            max_value = row['id']
+                    for row in rows:
+                        if row['id']<min_value:
+                            min_value = row['id']
+                        
+                    for index in model.indexes:
+                        if index == max_value:
+                            model.indexes.remove(index)
+                    for value in model.valuesAtIndex:
+                        if value != words[min_value].get('value'):
+                            model.valuesAtIndex.clear()
+                            result_rects.current_rect_index = None
+                    model.valuesAtIndex.append(words[min_value].get('value'))
+                    # print("************************************")
 
-                        result_rects.rects_data['words'] = words
+                    # print(result_rects.rects_data)
+                    # print("************************************")
 
+                    print(min_value)
+                    #print(f"row_id {rows[0]['id']}")
+                    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    print(f"valuesatIndex list {model.valuesAtIndex}")
+                    print(f"indexs {model.indexes}")
+                    print(f"words of min value , combined value{words[min_value]}")
+                    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+                    
+                    # for index, v in enumerate(model.indexes):
+                    #     if v < len(words):
+                    #             rect = words[min_value]  # Get the rectangle corresponding to the index 
+                    #             print(rect)
+                    
+                    if submit_btn  and len(rows) > 0 :
+                        
                         with open(model.rects_file, "w") as f:
                             json.dump(result_rects.rects_data, f, indent=2)
                         st.session_state[model.rects_file] = result_rects.rects_data
                         st.experimental_rerun()
+                    
+                labelled = ""          
+                if save_label :
+                    data = response['data'].values.tolist()
+                    print(data)  
+                    for index in model.indexes:
+                        # Find the index of the current index in the model.indexes list
+                        index_in_model = model.indexes.index(index)
+                        
+                        # Get the corresponding data for the current index
+                        value = data[index_in_model][1]
+                        label = data[index_in_model][2]
+                        
+                        grouping = data[index_in_model][3]
+                        if grouping :
+                            labelled = f"{grouping}:{label}"
+                        else:
+                            labelled = label
+                        
+                        #Update the rect data using the index
+                        data_processor.update_rect_data(result_rects.rects_data, index, value, labelled) 
+
+                    # Update rects data file
+                    with open(model.rects_file, "w") as f:
+                        json.dump(result_rects.rects_data, f, indent=2)
+                    st.session_state[model.rects_file] = result_rects.rects_data
+                    st.experimental_rerun()
+                
+                    
+                if auto_ordering:
+                    
+                    data = response['data'].values.tolist()
+                    for elem in data:
+                        if elem[3] != "":
+                            idx = elem[0]
+                            group = elem[3]
+                            words[idx]['label'] = f"{group}:{elem[2]}"
+
+
+                    result_rects.rects_data['words'] = words
+
+                    with open(model.rects_file, "w") as f:
+                        json.dump(result_rects.rects_data, f, indent=2)
+                    subprocess.run(["python", "../sparrow-data/jai.py", model.rects_file])
+
+                    updated_data = json.load(open(model.rects_file))
+                        
+                        # Update the Streamlit app's state with the modified data
+                    st.session_state[model.rects_file] = updated_data
+                    st.experimental_rerun()
+               
+                # if save_label:
+                #     data = response['data'].values.tolist()
+                #     #print(words[24])
+                #     print(data)
+                    
+                #     for i, rect in enumerate(words):
+                            
+                            
+                #         value = data[0][1]
+                #         label = data[0][2]
+                                
+                #         data_processor.update_rect_data(result_rects.rects_data, data[0][0], value, label) 
+                    
+                #     with open(model.rects_file, "w") as f:
+                #         json.dump(result_rects.rects_data, f, indent=2)
+                #     st.session_state[model.rects_file] = result_rects.rects_data
+                #     st.experimental_rerun()
+
 
     def labelTrial(self , model , result_rects,data_processor):
 
@@ -756,7 +1055,7 @@ class DataAnnotation:
             btn = st.button('Refresh', type="primary")
             print("**************************************************************************************")
             print(result_rects.current_rect_index)
-            print(model.copy)
+            # print(model.copy)
             print("**************************************************************************************")
             if btn :
                 model.v.clear()
@@ -868,11 +1167,76 @@ class DataAnnotation:
         
         sorted_list = ['lineNumber', 'productCode', 'productName', 'productDesc', 'orderedQuantity', 'backOrderedQuantity', 'shippedQuantity', 'unitPrice', 'amount']
         sorted_list_header=['invoiceDate','invoiceNumber','salesOrderNumber','poNumber']
-        try :
-            words = result_rects.rects_data['words']
 
+        list_of_file_names = []
+        for i in self.get_existing_file_names('docs/images/'):
+            extension = self.get_file_extension(i, 'docs/images/')
+            full_file_name = i + extension
+            list_of_file_names.append(full_file_name)
+        #print(list_of_file_names)
+        t = model.img_file.split('/')
+        current_file_name = t[2]
+        current_file_RemoveExtension = current_file_name.split('.',1)[0]
+
+        same_invoice_page_list = []
+        for item, value in enumerate(list_of_file_names):
+                value_result = value.split('.',1)[0]
+                #value_result_2 = value.split('.',2)
+                
+                if value_result == current_file_RemoveExtension:
+                    same_invoice_page_list.append(value)
+        #print(same_invoice_page_list)        
+        
+        current_file_index = list_of_file_names.index(current_file_name)
+        #print(current_file_index)
+        if current_file_index != 0:
+            previous_file_index = current_file_index-1
+            previous_file_name = list_of_file_names[previous_file_index]
+            print(previous_file_name)
+            if previous_file_name.endswith('.jpg'):
+                remove_jpg = previous_file_name[:-4]
+            
+            # print(model.rects_file)
+            data = None
+            path = rf"docs/json/{remove_jpg}.json"
+            
+            with open(path , 'r' , encoding='utf-8') as json_data:
+                data = json.load(json_data)
+                #st.experimental_rerun()
+                    
+            previous_file_words = []
+            
+            previous_rects = []
+            previous_values = []
+            previous_labels=[]
+            
+            for rect in data['words']:
+                previous_rects.append(rect.get('rect'))
+                previous_values.append(rect.get('value'))
+                previous_labels.append(rect.get('label'))
+
+            for re , va , la in zip(previous_rects , previous_values , previous_labels):
+                previous_file_words.append({'rect':re , 'value':va , 'label':la})
+            
+            
+
+        try :
+            #print(result_rects.rects_data['words'])
+            rects = []
+            values = []
+            labels=[]
+            words = []
+            for rect in result_rects.rects_data['words']:
+                rects.append(rect.get('rect'))
+                values.append(rect.get('value'))
+                labels.append(rect.get('label'))
+
+            for r , v , l in zip(rects , values , labels):
+                words.append({'rect':r , 'value':v , 'label':l})
+            #print(words)
             seen_combinations = set()
             seen_labels = set()
+            seen_head_label = set()
             # Create an empty dictionary to hold data for each column
             table_data = {col: [] for col in sorted_list}
             header_data = {col: [None] for col in sorted_list_header}
@@ -906,22 +1270,59 @@ class DataAnnotation:
                         if label not in seen_labels:
                             seen_labels.add(label)
                             for col_head in sorted_list_header:
-                                
                                 if label == col_head:
                                     header_data[col_head][0] = rect['value']
                                     
-
+            #values = set()
             # Convert header_data to DataFrame
+            # if same_invoice_page_list.index(current_file_name) == 0:
+               
             head_df = pd.DataFrame(header_data)
-        
-            # Remove columns with all NaN values
+            
+            
             head_df_filtered = head_df.dropna(axis=1, how='all')
 
-            # Display the filtered DataFrame
+            
+            #st.session_state['cached_df'] = head_df_filtered
+            
             st.write(head_df_filtered)
+            # else:
+               
+            #     for i, rect in enumerate(previous_file_words):
+            #         group, label = rect['label'].split(":", 1) if ":" in rect['label'] else (None, rect['label'])
+            #         if label != "":
+            #             print(label)  # Debugging
+            #             if label not in seen_labels:  # Assuming seen_labels contains all unique labels
+            #                 seen_labels.add(label)
+            #                 for current_rect in words:
+            #                     if current_rect['value'] == rect['value']:
+            #                         current_rect['label'] = f"{group}:{label}"
+                                   
+            #                         print(current_rect['value'], current_rect['label'])
+                                    
+            #                         result_rects.rects_data['words'] = words
+            #                         #print(result_rects.rects_data)
 
-                        
-                    
+            #                         # Write the updated rect data to the JSON file
+            #                         with open(model.rects_file, "w") as f:
+            #                             json.dump(result_rects.rects_data, f, indent=2)
+            #                         st.session_state[model.rects_file] = result_rects.rects_data
+            #                         st.experimental_rerun()
+
+                #making the dataframe of header labels
+                # for index , cur_rect in enumerate(words):
+                #      groupped, labelled = cur_rect['label'].split(":", 1) if ":" in cur_rect['label'] else (None, cur_rect['label'])
+                #      if labelled not in seen_head_label:
+                #             seen_head_label.add(labelled)
+                #             for col_head in sorted_list_header:
+                #                 if labelled == col_head:
+                #                     header_data[col_head][0] = cur_rect['value']
+                # head_data_df =  pd.DataFrame(header_data)
+ 
+                # head_df_filter = head_data_df.dropna(axis=1, how='all')
+                # st.write(head_df_filter)
+                # print(head_df_filter)
+                              
 
             # Fill missing values with None if any column lengths are different
             max_length = max(len(values) for values in table_data.values())
@@ -932,13 +1333,13 @@ class DataAnnotation:
             df = pd.DataFrame(table_data)
             df_filtered = df.dropna(axis=1, how='all')
             df_filtered.index = np.arange(1 , len(df_filtered)+1)
-            edited_df = st.experimental_data_editor(df_filtered, num_rows= "dynamic" , column_config={"is_widget": "Widget ?",})
+            edited_df = st.experimental_data_editor(df_filtered, num_rows= "dynamic")
             # grid = AgGrid(
             #     df.head(50),
             #     gridOptions=GridOptionsBuilder.from_dataframe(df_filtered).build(),
             # )
             #st.write(df_filtered)
-            print(edited_df)
+            #print(edited_df)
             # User input for rows to swap
             rect1 = []
             rect2 = []
@@ -986,6 +1387,8 @@ class DataAnnotation:
                     st.experimental_rerun()
         except:
             pass
+            
+        
             
 
     def order_annotations(self, model, labels, groups, result_rects):
