@@ -215,19 +215,19 @@ class DataAnnotation:
                 with col1:
                     result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor)
                 with col2:
-                    tab = st.radio("Select", ["Mapping","Grouping","Ordering","Selected Grouping" ,"Selected", "Review"], horizontal=True,
+                    tab = st.radio("Select", ["Mapping","Selected Grouping" , "Review"], horizontal=True,
                                    label_visibility="collapsed")
                     
-                    if tab == "Selected":
-                        self.labelTrial(model , result_rects,data_processor)
-                    elif tab == "Mapping":
+                    # if tab == "Selected":
+                    #     self.labelTrial(model , result_rects,data_processor)
+                    if tab == "Mapping":
                         self.render_form(model, result_rects, data_processor, annotation_selection)
-                    elif tab == "Grouping":
-                        self.group_annotations(model, result_rects)
-                    if tab == "Selected Grouping":
+                    # elif tab == "Grouping":
+                        # self.group_annotations(model, result_rects)
+                    elif tab == "Selected Grouping":
                         self.SelectedGrouping(model, result_rects, data_processor)
-                    elif tab == "Ordering":
-                        self.order_annotations(model, model.labels, model.groups, result_rects)
+                    # elif tab == "Ordering":
+                    #     self.order_annotations(model, model.labels, model.groups, result_rects)
                     
                     elif tab == "Review":
                         self.observations(model ,result_rects)
@@ -751,6 +751,7 @@ class DataAnnotation:
             if result_rects is not None:
                 words = result_rects.rects_data['words']
                 data = []
+                seen_ids = set()
                 for i, rect in enumerate(words):
                         if i == result_rects.current_rect_index:
                             if rect['rect'] not in model.list_of_rect:
@@ -761,7 +762,9 @@ class DataAnnotation:
                                 
                         
                       
-                #print(model.bbox_ids)    
+                print(model.valuesAtIndex)
+                print(model.indexes)
+
                             # else:
                             #     model.valuesAtIndex.clear()
                             #     model.indexes.clear()
@@ -775,17 +778,52 @@ class DataAnnotation:
                     for i , v in enumerate(model.indexes):
                         if index == v :
                             if rect['rect'] not in custom_rect_list:
+                                id_value = index
                                 value = rect['value'] 
                                 group, label = rect['label'].split(":", 1) if ":" in rect['label'] else ("", rect['label'])
                                 # # #print(label)
                                 # if ":" in group:
                                 #     group.replace(":","")
                                 
-                                data.append({'id':index , 'value': value ,'label':label , 'group':group})
                                 custom_rect_list.append(rect['rect'])
+                                if id_value not in seen_ids:
+                                    data.append({'id': id_value, 'value': value, 'label': label, 'group': group})
+                                    seen_ids.add(id_value)
+                                #data.append({'id':index , 'value': value ,'label':label , 'group':group})
                 #print(custom_rect_list)
-
                 df = pd.DataFrame(data)
+                sorted_list = sorted(model.indexes)
+                if sorted_list == model.indexes: 
+                    df = pd.DataFrame(data)
+                
+
+                # Create a dictionary with values from model.valuesAtIndex as keys and corresponding DataFrame rows as values
+                else:
+                    data_dict = {}
+                    for value in model.valuesAtIndex:
+                        data_dict[value] = df.loc[df['value'] == value]
+
+                    # Reconstruct DataFrame with rows in the desired order
+                    try:
+                        df = pd.concat(data_dict.values())
+                    except:
+                        pass
+                # try :
+                #     filtered_dfs = []
+
+                #     # Filter DataFrame rows based on the values in model.valuesAtIndex
+                #     for value in model.valuesAtIndex:
+                #         filtered_df = df[df['value'] == value]
+                #         filtered_dfs.append(filtered_df)
+
+                #     # Concatenate filtered DataFrames to reconstruct DataFrame with rows in the desired order
+                #     df = pd.concat(filtered_dfs)
+
+                #     print(df)
+
+                    
+                # except:
+                    #pass
                 formatter = {
                 'id': ('ID', {**PINLEFT, 'width': 50}),
                 'value': ('Value',{**PINLEFT , 'editable': True}),
@@ -937,7 +975,7 @@ class DataAnnotation:
                         label = data[index_in_model][2]
                         
                         grouping = data[index_in_model][3]
-                        if grouping :
+                        if grouping != "":
                             labelled = f"{grouping}:{label}"
                         else:
                             labelled = label
