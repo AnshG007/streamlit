@@ -66,7 +66,7 @@ class Uploader:
         # Simulating subprocess with sleep
         subprocess.run(["python", "../sparrow-data/run_ocr.py"])
         subprocess.run(["python", "../sparrow-data/run_converter.py"])
-        subprocess.run(["python", "../sparrow-data/deleteFiles.py"])
+        #subprocess.run(["python", "../sparrow-data/deleteFiles.py"])
         subprocess.run(["python", "../sparrow-data/grouping.py"]+ self.file_list)
         #st.write("Additional script invoked.")
 

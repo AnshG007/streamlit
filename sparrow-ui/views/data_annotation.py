@@ -120,7 +120,8 @@ class DataAnnotation:
             annotation_selection = placeholder_upload.selectbox(model.annotation_text, file_names,
                                                                 index=annotation_index,
                                                                 help=model.annotation_selection_help)
-
+            print("1111111111111111111111111111")
+            print(annotation_selection)
             annotation_index = self.get_annotation_index(annotation_selection, file_names)
 
             file_extension = self.get_file_extension(annotation_selection, 'docs/images/')
@@ -198,6 +199,65 @@ class DataAnnotation:
             st.session_state[model.rects_file] = saved_state
 
         assign_labels = st.checkbox(model.assign_labels_text, True, help=model.assign_labels_help)
+        t = model.img_file.split('/')
+        fileName = t[2]
+        result = fileName.split('.',1)[0]
+        #print(result)
+        
+        if st.button("Next Invoice"):
+            l = []
+            path = r"C:\Users\DELL\Desktop\sparrow-main\sparrow-ui\docs\images"
+        
+            for index , file in enumerate(os.listdir(path)):
+                if index == 0:
+                    file_name = file
+                    file = file.split(".")[0]
+                    l.append(file)
+                else:
+                    if file.endswith(".jpg"):
+                        file_name = file
+                        file = file.split(".")[0]
+                    if file in l:
+                        pass
+                    else:
+                        l.append(file)
+            m = []
+            # for item in l:
+            #     item = item + ".pdf_page_1.jpg"
+            #     m.append(item)
+            
+            next_invoice_name = None
+            for item in l:
+                if result in l:
+                    index = l.index(result)
+                    print(index)
+            next_invoice_name = l[index+1]
+            print(next_invoice_name)
+
+            model.img_file = f"docs/images/{next_invoice_name}.pdf_page_1.jpg"
+            model.rects_file = f"docs/json/{next_invoice_name}.pdf_page_1.json"
+            print(model.img_file)
+            print(model.rects_file)
+            
+
+
+                        
+                    
+                    
+                    # print(f"next button ke andar {model.img_file}")
+                    # print(f"next button  ke andar {model.rects_file}")
+                    
+                    
+                # else:
+                #     index = 0
+                #     next_invoice_name = l[index]
+                #     print(next_invoice_name)
+                #     #next_invoice_index = l.index(next_invoice_name)
+                #     next_invoice_json = l[index]
+                #     #print(next_invoice_json)
+                #     st.session_state['annotation_index'] = index
+                #     model.img_file = f"docs/images/{next_invoice_name}"
+                #     model.rects_file = f"docs/json/{next_invoice_json}.json"
         mode = "transform" if assign_labels else "rect"
         
         docImg = Image.open(model.img_file)
@@ -215,7 +275,7 @@ class DataAnnotation:
                 with col1:
                     result_rects = self.render_doc(model, docImg, saved_state, mode, canvas_width, doc_height, doc_width,data_processor)
                 with col2:
-                    tab = st.radio("Select", ["Mapping","Selected Grouping" , "Review"], horizontal=True,
+                    tab = st.radio("Select", ["Mapping", "Selected Grouping" , "Review"], horizontal=True,
                                    label_visibility="collapsed")
                     
                     # if tab == "Selected":
@@ -317,9 +377,9 @@ class DataAnnotation:
 
             selected_page_index = st.radio("Select Page", range(len(same_invoice_pages)), key="selectbox1")
 
-
+            
             if selected_page_index != annotation_index:
-                print("hello world")
+                #print("hello world")
                 annotation_index = selected_page_index
                 
                 st.session_state['annotation_index'] = annotation_index
@@ -329,40 +389,40 @@ class DataAnnotation:
                 
                 model.img_file = f"docs/images/{selected_page}"
                 model.rects_file = f"docs/json/{selected_page_json}.json"
-                print(f"select box ke andar {model.img_file}")
-                print(f"select box ke andar {model.rects_file}")    
+                # print(f"select box ke andar {model.img_file}")
+                # print(f"select box ke andar {model.rects_file}")    
                 
             
-            if st.button("Next Invoice"):
-                st.session_state['button_clicked'] = True
-                current_index = l.index(fileName)
-                index = (len(same_invoice_pages) - selected_page_index  + len(l[:current_index]))
-                print(selected_page_index)
-                if index < len(l):
-                    # if invoice_index < len(remaining_files):
-                    #next_invoice_name = f"{remaining_files[invoice_index]}.jpg"
-                    next_invoice_name = l[index]
-                    print(next_invoice_name)
-                    #next_invoice_index = l.index(next_invoice_name)
-                    next_invoice_json = l[index][:-4]
+            # if st.button("Next Invoice"):
+            #     st.session_state['button_clicked'] = True
+            #     current_index = l.index(fileName)
+            #     index = (len(same_invoice_pages) - selected_page_index  + len(l[:current_index]))
+            #     print(selected_page_index)
+            #     if index < len(l):
+            #         # if invoice_index < len(remaining_files):
+            #         #next_invoice_name = f"{remaining_files[invoice_index]}.jpg"
+            #         next_invoice_name = l[index]
+            #         print(next_invoice_name)
+            #         #next_invoice_index = l.index(next_invoice_name)
+            #         next_invoice_json = l[index][:-4]
                     
-                    model.img_file = f"docs/images/{next_invoice_name}"
-                    model.rects_file = f"docs/json/{next_invoice_json}.json"
-                    st.session_state['annotation_index'] = index
-                    # print(f"next button ke andar {model.img_file}")
-                    # print(f"next button  ke andar {model.rects_file}")
+            #         model.img_file = f"docs/images/{next_invoice_name}"
+            #         model.rects_file = f"docs/json/{next_invoice_json}.json"
+            #         st.session_state['annotation_index'] = index
+            #         # print(f"next button ke andar {model.img_file}")
+            #         # print(f"next button  ke andar {model.rects_file}")
                     
                     
-                else:
-                    index = 0
-                    next_invoice_name = l[index]
-                    print(next_invoice_name)
-                    #next_invoice_index = l.index(next_invoice_name)
-                    next_invoice_json = l[index]
-                    #print(next_invoice_json)
-                    st.session_state['annotation_index'] = index
-                    model.img_file = f"docs/images/{next_invoice_name}"
-                    model.rects_file = f"docs/json/{next_invoice_json}.json"
+            #     else:
+            #         index = 0
+            #         next_invoice_name = l[index]
+            #         print(next_invoice_name)
+            #         #next_invoice_index = l.index(next_invoice_name)
+            #         next_invoice_json = l[index]
+            #         #print(next_invoice_json)
+            #         st.session_state['annotation_index'] = index
+            #         model.img_file = f"docs/images/{next_invoice_name}"
+            #         model.rects_file = f"docs/json/{next_invoice_json}.json"
             
 
             if st.session_state['button_clicked']:
@@ -713,6 +773,19 @@ class DataAnnotation:
        # print(model.indexes)
         # check = st.checkbox("active")
         # Define a function to execute JavaScript code
+        run_subprocess_button = st.button("Run Subprocess")
+        if run_subprocess_button:
+            print("HELLO")
+            #print(model.rects_file)
+            subprocess.run(["python", "../sparrow-data/auto_header.py", model.rects_file])
+            updated_data = json.load(open(model.rects_file))
+            print("world")
+            # with open(model.rects_file, "w") as f:
+            #     json.dump(result_rects.rects_data, f, indent=2)
+            
+            # Update the Streamlit app's state with the modified data
+            st.session_state[model.rects_file] = updated_data
+            st.experimental_rerun()
         col1 , col2 , col3,col4 = st.columns(4)
         if 'click' not in st.session_state:
             st.session_state['click'] = False
@@ -762,8 +835,8 @@ class DataAnnotation:
                                 
                         
                       
-                print(model.valuesAtIndex)
-                print(model.indexes)
+                # print(model.valuesAtIndex)
+                # print(model.indexes)
 
                             # else:
                             #     model.valuesAtIndex.clear()
