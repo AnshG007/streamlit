@@ -109,7 +109,7 @@ class DataAnnotation:
 
             placeholder_upload = st.empty()
 
-            file_names = self.get_existing_file_names('docs/images/')
+            file_names = self.get_existing_file_names(f"docs/{st.session_state.selected_box}/images/")
 
             if 'annotation_index' not in st.session_state:
                 st.session_state['annotation_index'] = 0
@@ -120,13 +120,13 @@ class DataAnnotation:
             annotation_selection = placeholder_upload.selectbox(model.annotation_text, file_names,
                                                                 index=annotation_index,
                                                                 help=model.annotation_selection_help)
-            print("1111111111111111111111111111")
-            print(annotation_selection)
+            #print("1111111111111111111111111111")
+            #print(annotation_selection)
             annotation_index = self.get_annotation_index(annotation_selection, file_names)
 
             file_extension = self.get_file_extension(annotation_selection, 'docs/images/')
-            model.img_file = f"docs/images/{annotation_selection}" + file_extension
-            model.rects_file = f"docs/json/{annotation_selection}.json"
+            model.img_file = f"docs/{st.session_state.selected_box}/images/{annotation_selection}" + file_extension
+            model.rects_file = f"docs/{st.session_state.selected_box}/json/{annotation_selection}.json"
             model.key_file = f"docs/json/key/{annotation_selection}.json"
 
             # print(f"before render doc {model.img_file}")
@@ -301,22 +301,26 @@ class DataAnnotation:
                 
 
     def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width, data_processor):
-        
+        a = st.session_state.selected_box
+        # del st.session_state.selected_box
+        # st.write(a)
+        st.write(st.session_state.selected_box)
         if 'annotation_index' not in st.session_state:
             st.session_state['annotation_index'] = 0
         annotation_index = st.session_state['annotation_index']
 
         # Retrieve list of filenames
         l = []
-        for i in self.get_existing_file_names('docs/images/'):
-            extension = self.get_file_extension(i, 'docs/images/')
+        for i in self.get_existing_file_names(f'docs/{st.session_state.selected_box}/images/'):
+            extension = self.get_file_extension(i, f'docs/{st.session_state.selected_box}/images/')
             full_file_name = i + extension
             l.append(full_file_name)
 
         #Get the current filename
         t = model.img_file.split('/')
-        fileName = t[2]
-        
+        print(model.img_file)
+        fileName = t[3]
+        print(fileName)
         
         st.write(fileName)
         
@@ -341,8 +345,8 @@ class DataAnnotation:
             result = filename_at_index
 
         # Update the model's img_file and rects_file
-        model.img_file = f"docs/images/{filename_at_index}"
-        model.rects_file = f"docs/json/{result}.json"
+        model.img_file = f"docs/{st.session_state.selected_box}/images/{filename_at_index}"
+        model.rects_file = f"docs/{st.session_state.selected_box}/json/{result}.json"
             
 
                   

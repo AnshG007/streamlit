@@ -26,7 +26,7 @@ load_css()
 
 
 class Model:
-    menuTitle = "Sparrow"
+    menuTitle = ""
     # option1 = "Dashboard"
     option1 = "Main"
     option2 = "Data Annotation"
@@ -39,17 +39,17 @@ class Model:
     option9 = "Upload"
     
 
-    menuIcon = "menu-up"
+    menuIcon = ""
     # icon1 = "speedometer"
-    icon1 = ":umbrella_with_rain_drops:"
-    icon2 = "Empty"
+    icon1 = ""
+    icon2 = ""
     # icon3 = "motherboard"
     # icon4 = "graph-up-arrow"
     # icon5 = "journal-arrow-down"
     # icon6 = "droplet"
     # icon7 = "clipboard-data"
     # icon8 = "chat"
-    icon9 = "uploader"
+    icon9 = ""
    
 
 
