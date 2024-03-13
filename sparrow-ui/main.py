@@ -12,6 +12,7 @@ from views.setup import Setup
 from views.data_review import DataReview
 from views.about import About
 from views.upload import Uploader
+from views.Main_page import Main_page
 
 import streamlit_javascript as st_js
 
@@ -27,6 +28,7 @@ load_css()
 class Model:
     menuTitle = "Sparrow"
     # option1 = "Dashboard"
+    option1 = "Main"
     option2 = "Data Annotation"
     # option3 = "Model Training"
     # option4 = "Model Tuning"
@@ -35,10 +37,12 @@ class Model:
     # option7 = "Setup"
     # option8 = "About"
     option9 = "Upload"
+    
 
     menuIcon = "menu-up"
     # icon1 = "speedometer"
-    icon2 = "activity"
+    icon1 = ":umbrella_with_rain_drops:"
+    icon2 = "Empty"
     # icon3 = "motherboard"
     # icon4 = "graph-up-arrow"
     # icon5 = "journal-arrow-down"
@@ -46,6 +50,7 @@ class Model:
     # icon7 = "clipboard-data"
     # icon8 = "chat"
     icon9 = "uploader"
+   
 
 
 def view(model):
@@ -53,8 +58,8 @@ def view(model):
         menuItem = option_menu(model.menuTitle,
                             #    [model.option1, model.option2, model.option5, model.option6, model.option7, model.option8, model.option9],
                             #    icons=[model.icon1, model.icon2, model.icon5, model.icon6, model.icon7, model.icon8, model.icon9],
-                               [model.option2 , model.option9],
-                               icons = [model.icon2,model.icon9],
+                               [model.option1 , model.option2 , model.option9  ],
+                               icons = [model.icon1, model.icon2, model.icon9 ],
                                menu_icon=model.menuIcon,
                                default_index=0,
                                styles={
@@ -68,6 +73,10 @@ def view(model):
     # if menuItem == model.option1:
     #     Dashboard().view(Dashboard.Model())
     #     logout_widget()
+    if menuItem == model.option1:
+        main_instance = Main_page().Model()
+        main_instance.view()
+        logout_widget()
 
     if menuItem == model.option2:
         if 'ui_width' not in st.session_state or 'device_type' not in st.session_state or 'device_width' not in st.session_state:
@@ -166,6 +175,8 @@ def view(model):
         uploader_instance = Uploader()
         uploader_instance.view()
         logout_widget()
+
+    
 
 
 def logout_widget():

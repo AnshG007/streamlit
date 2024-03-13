@@ -199,45 +199,45 @@ class DataAnnotation:
             st.session_state[model.rects_file] = saved_state
 
         assign_labels = st.checkbox(model.assign_labels_text, True, help=model.assign_labels_help)
-        t = model.img_file.split('/')
-        fileName = t[2]
-        result = fileName.split('.',1)[0]
-        #print(result)
+        # t = model.img_file.split('/')
+        # fileName = t[2]
+        # result = fileName.split('.',1)[0]
+        # #print(result)
         
-        if st.button("Next Invoice"):
-            l = []
-            path = r"C:\Users\DELL\Desktop\sparrow-main\sparrow-ui\docs\images"
+        # if st.button("Next Invoice"):
+        #     l = []
+        #     path = r"C:\Users\DELL\Desktop\sparrow-main\sparrow-ui\docs\images"
         
-            for index , file in enumerate(os.listdir(path)):
-                if index == 0:
-                    file_name = file
-                    file = file.split(".")[0]
-                    l.append(file)
-                else:
-                    if file.endswith(".jpg"):
-                        file_name = file
-                        file = file.split(".")[0]
-                    if file in l:
-                        pass
-                    else:
-                        l.append(file)
-            m = []
-            # for item in l:
-            #     item = item + ".pdf_page_1.jpg"
-            #     m.append(item)
+        #     for index , file in enumerate(os.listdir(path)):
+        #         if index == 0:
+        #             file_name = file
+        #             file = file.split(".")[0]
+        #             l.append(file)
+        #         else:
+        #             if file.endswith(".jpg"):
+        #                 file_name = file
+        #                 file = file.split(".")[0]
+        #             if file in l:
+        #                 pass
+        #             else:
+        #                 l.append(file)
+        #     m = []
+        #     # for item in l:
+        #     #     item = item + ".pdf_page_1.jpg"
+        #     #     m.append(item)
             
-            next_invoice_name = None
-            for item in l:
-                if result in l:
-                    index = l.index(result)
-                    print(index)
-            next_invoice_name = l[index+1]
-            print(next_invoice_name)
+        #     next_invoice_name = None
+        #     for item in l:
+        #         if result in l:
+        #             index = l.index(result)
+        #             print(index)
+        #     next_invoice_name = l[index+1]
+        #     print(next_invoice_name)
 
-            model.img_file = f"docs/images/{next_invoice_name}.pdf_page_1.jpg"
-            model.rects_file = f"docs/json/{next_invoice_name}.pdf_page_1.json"
-            print(model.img_file)
-            print(model.rects_file)
+        #     model.img_file = f"docs/images/{next_invoice_name}.pdf_page_1.jpg"
+        #     model.rects_file = f"docs/json/{next_invoice_name}.pdf_page_1.json"
+        #     print(model.img_file)
+        #     print(model.rects_file)
             
 
 
@@ -301,133 +301,49 @@ class DataAnnotation:
                 
 
     def render_doc(self, model, docImg, saved_state, mode, canvas_width, doc_height, doc_width, data_processor):
+        
+        if 'annotation_index' not in st.session_state:
+            st.session_state['annotation_index'] = 0
+        annotation_index = st.session_state['annotation_index']
+
+        # Retrieve list of filenames
+        l = []
+        for i in self.get_existing_file_names('docs/images/'):
+            extension = self.get_file_extension(i, 'docs/images/')
+            full_file_name = i + extension
+            l.append(full_file_name)
+
+        # Get the current filename
+        # t = model.img_file.split('/')
+        # fileName = t[2]
+
+        next_button = st.button("Next")
+
+        if next_button:
+            # Move to the next filename in the list
+            print("hello")
+            annotation_index = (annotation_index + 1) % len(l)
+            st.session_state['annotation_index'] = annotation_index
+
+        # Get the filename at the updated index
+
+        filename_at_index = l[annotation_index]
+
+        # Check if it ends with ".jpg" and remove if necessary
+        if filename_at_index.endswith(".jpg"):
+            result = filename_at_index[:-4]
+        elif filename_at_index.endswith(".jpeg"):
+            result = filename_at_index[:-5]
+        else:
+            result = filename_at_index
+
+        # Update the model's img_file and rects_file
+        model.img_file = f"docs/images/{filename_at_index}"
+        model.rects_file = f"docs/json/{result}.json"
+            
+
+                  
         with st.container():
-           
-            # Retrieve annotation index and current invoice index from session state
-            if 'annotation_index' not in st.session_state:
-                st.session_state['annotation_index'] = 0
-            if 'invoice_index' not in st.session_state:
-                st.session_state['invoice_index'] = 0
-            if 'button_clicked' not in st.session_state:
-                st.session_state['button_clicked'] = False
-
-            annotation_index = st.session_state['annotation_index']
-            invoice_index = st.session_state['invoice_index']
-
-            # Retrieve list of filenames
-            l = []
-            for i in self.get_existing_file_names('docs/images/'):
-                extension = self.get_file_extension(i, 'docs/images/')
-                full_file_name = i + extension
-                l.append(full_file_name)
-            # pdf_files_without_full_name = []
-            # for item, value in enumerate(l):
-
-            #     value_result1 , value_result2 = value.split('.',1)
-            #     value_result3 = value_result2[:-4]
-            #     if value_result1 not in pdf_files_without_full_name:
-                    
-            #         pdf_files_without_full_name.append(value_result1)
-            # #print(pdf_files_without_full_name)
-            # pdf_files_with_full_name = []
-            
-            # for item, value in enumerate(l):
-            #     value_result1 , value_result2 = value.split('.',1)
-            #     value_result3 = value_result2[:-4]
-            #     print(value_result1)
-            #     if value_result1 in pdf_files_without_full_name:
-            #         value_result4 = value_result1 + '.' + value_result3
-            #         pdf_files_with_full_name.append(value_result4)
-            # #print(pdf_files_with_full_name)
-
-
-
-
-            # Get the current filename
-            t = model.img_file.split('/')
-            fileName = t[2]
-            result = fileName.split('.',1)[0]
-
-            #next_button = st.button("Next Invoice")
-
-             # Pages of the same invoice
-            rem = []
-            same_invoice_pages = []
-            #same_invoice_pages = [value for value in l if value.split('.', 1)[0] == result]
-            for item, value in enumerate(l):
-                value_result = value.split('.',1)[0]
-                #value_result_2 = value.split('.',2)
-                
-                if value_result == result:
-                    same_invoice_pages.append(value)
-                else:
-                    if value_result not in rem:
-                        rem.append(value_result)
-
-            remaining_files = []
-            for item, value in enumerate(l):
-                value_result1 , value_result2 = value.split('.',1)
-                value_result3 = value_result2[:-4]
-                if value_result1 in rem:
-                    value_result4 = value_result1 + '.' + value_result3
-                    remaining_files.append(value_result4)
-
-            st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
-            
-
-            selected_page_index = st.radio("Select Page", range(len(same_invoice_pages)), key="selectbox1")
-
-            
-            if selected_page_index != annotation_index:
-                #print("hello world")
-                annotation_index = selected_page_index
-                
-                st.session_state['annotation_index'] = annotation_index
-                st.session_state['selected_page_index'] = selected_page_index
-                selected_page = same_invoice_pages[selected_page_index]
-                selected_page_json = selected_page[:-4]
-                
-                model.img_file = f"docs/images/{selected_page}"
-                model.rects_file = f"docs/json/{selected_page_json}.json"
-                # print(f"select box ke andar {model.img_file}")
-                # print(f"select box ke andar {model.rects_file}")    
-                
-            
-            # if st.button("Next Invoice"):
-            #     st.session_state['button_clicked'] = True
-            #     current_index = l.index(fileName)
-            #     index = (len(same_invoice_pages) - selected_page_index  + len(l[:current_index]))
-            #     print(selected_page_index)
-            #     if index < len(l):
-            #         # if invoice_index < len(remaining_files):
-            #         #next_invoice_name = f"{remaining_files[invoice_index]}.jpg"
-            #         next_invoice_name = l[index]
-            #         print(next_invoice_name)
-            #         #next_invoice_index = l.index(next_invoice_name)
-            #         next_invoice_json = l[index][:-4]
-                    
-            #         model.img_file = f"docs/images/{next_invoice_name}"
-            #         model.rects_file = f"docs/json/{next_invoice_json}.json"
-            #         st.session_state['annotation_index'] = index
-            #         # print(f"next button ke andar {model.img_file}")
-            #         # print(f"next button  ke andar {model.rects_file}")
-                    
-                    
-            #     else:
-            #         index = 0
-            #         next_invoice_name = l[index]
-            #         print(next_invoice_name)
-            #         #next_invoice_index = l.index(next_invoice_name)
-            #         next_invoice_json = l[index]
-            #         #print(next_invoice_json)
-            #         st.session_state['annotation_index'] = index
-            #         model.img_file = f"docs/images/{next_invoice_name}"
-            #         model.rects_file = f"docs/json/{next_invoice_json}.json"
-            
-
-            if st.session_state['button_clicked']:
-                st.session_state['button_clicked'] = False       
-
             words = saved_state.get('words', [])
             meta_info = saved_state.get('meta', {})
 
