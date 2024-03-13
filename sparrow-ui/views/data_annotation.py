@@ -313,12 +313,15 @@ class DataAnnotation:
             full_file_name = i + extension
             l.append(full_file_name)
 
-        # Get the current filename
-        # t = model.img_file.split('/')
-        # fileName = t[2]
-
+        #Get the current filename
+        t = model.img_file.split('/')
+        fileName = t[2]
+        
+        
+        st.write(fileName)
+        
+            
         next_button = st.button("Next")
-
         if next_button:
             # Move to the next filename in the list
             print("hello")
